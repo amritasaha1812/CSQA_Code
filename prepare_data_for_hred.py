@@ -13,9 +13,7 @@ from nltk import word_tokenize
 from itertools import izip
 import collections
 from collections import Counter
-from knowledge_graph import KnowledgeGraph
-#from question_parser import QuestionParser
-#from LuceneSearch import *
+from LuceneSearch import *
 from question_parser_lucene2 import QuestionParser
 from clean_utils import read_file_as_dict
 from text_util import clean_word
@@ -37,7 +35,7 @@ HOPS_FROM_QN_ENTITY = 1
 MAX_CANDIDATE_ENTITIES = 10000
 MAX_CANDIDATE_TUPLES = 100000
 class PrepareData():
-    def __init__(self, max_utter, max_len, start_symbol_index, end_symbol_index, unk_symbol_index, pad_symbol_index, pad_kb_symbol_index, nkb_symbol_index, input_graph, stopwords, max_mem_size, max_target_size, vocab_max_len, all_possible_ngrams, cutoff=-1):
+    def __init__(self, max_utter, max_len, start_symbol_index, end_symbol_index, unk_symbol_index, pad_symbol_index, pad_kb_symbol_index, nkb_symbol_index, stopwords, stopwords_histogram, lucene_dir, transe_dir, wikidata_dir, glove_dir, max_mem_size, max_target_size, vocab_max_len, all_possible_ngrams, cutoff=-1):
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger('prepare_data_for_hred')
         self.max_utter = max_utter
@@ -72,7 +70,7 @@ class PrepareData():
         self.stemmer = nltk.stem.porter.PorterStemmer()
         self.bad_qids = set(['Q184386','Q1541554','Q540955','Q2620241','Q742391'])  #adding Yes/No
         self.bad_qids.update(pkl.load(open('wikidata_entities_with_digitnames.pkl')))
-        self.wikidata_qid_to_name = json.load(open('/dccstor/cssblr/vardaan/dialog-qa/item_data_filt.json'))
+        self.wikidata_qid_to_name = json.load(open(wikidata_dir+'/items_wikidata_.json'))
 	#Taken from Su Nam Kim Paper...
         self.grammar = r"""
             NBAR:
@@ -84,27 +82,16 @@ class PrepareData():
         """
         self.chunker = nltk.RegexpParser(self.grammar)
         #************************************************************************#
-        # self.knowledge_base = KnowledgeGraph(input_graph, unidirectional=False)
-        # if not os.path.isfile('knowledge_base.pkl'):
-        # self.safe_pickle(self.knowledge_base, 'knowledge_base.pkl')
-        # self.knowledge_base = pkl.load(open('/dccstor/cssblr/vardaan/hred_kvmem2/knowledge_base.pkl','r'))
-        self.knowledge_base = None
-
-        self.stop_vocab = read_file_as_dict(stopwords)
-	self.stop_set = set([x.lower() for x in self.stop_vocab.keys()])
-        self.stop_set.update(stopwords)
-        with open('/dccstor/cssblr/vardaan/dialog-qa/dict_val/all_template_words.txt') as fr:
-                self.stop_set.update([x.strip().lower() for x in fr.readlines()])
-        self.stop_set.update(pkl.load(open('/dccstor/cssblr/vardaan/dialog-qa/all_parent_names.pkl')))	
-        self.ls = LuceneSearch('/dccstor/cssblr/amrita/dialog_qa/code/prepro_lucene/lucene_index_3m')
-        # self.question_parser = QuestionParser(self.knowledge_base.get_entities(), self.stop_vocab, self.ls)
+	self.stop_set = pkl.load(open(stopwords))
+        self.stop_vocab = read_file_as_dict(stopwords_histogram)
+        self.ls = LuceneSearch(lucene_dir)
         self.question_parser = QuestionParser(None, self.stop_vocab, self.stop_set, self.bad_qids, self.ls, self.wikidata_qid_to_name, self.all_possible_ngrams)
-        self.wikidata, self.reverse_dict, self.prop_data, self.child_par_dict, self.child_all_par_dict, self.wikidata_fanout_dict = load_wikidata() # change to load_wikidata2, add reverse_dict
+        self.wikidata, self.reverse_dict, self.prop_data, self.child_par_dict, self.child_all_par_dict, self.wikidata_fanout_dict = load_wikidata(wikidata_dir)
         self.id_entity_map = {self.pad_kb_symbol_index:self.pad_kb_symbol, self.nkb_symbol_index: self.nkb_symbol}
-        self.id_entity_map.update({(k+2):v for k,v in pkl.load(open('/dccstor/cssblr/vardaan/projE-wikidata/ProjE/id_entity_map.pickle','rb')).iteritems()})
+        self.id_entity_map.update({(k+2):v for k,v in pkl.load(open(transe_dir+'/id_entity_map.pickle','rb')).iteritems()})
 	
         self.id_rel_map = {self.pad_kb_symbol_index:self.pad_kb_symbol, self.nkb_symbol_index: self.nkb_symbol}
-        self.id_rel_map.update({(k+2):v for k,v in pkl.load(open('/dccstor/cssblr/vardaan/projE-wikidata/ProjE/id_rel_map.pickle','rb')).iteritems()})
+        self.id_rel_map.update({(k+2):v for k,v in pkl.load(open(transe_dir+'/id_rel_map.pickle','rb')).iteritems()})
 
         self.entity_id_map = {v: k for k, v in self.id_entity_map.iteritems()}
         self.rel_id_map = {v: k for k, v in self.id_rel_map.iteritems()}
@@ -112,17 +99,17 @@ class PrepareData():
         self.kb_ov_idx = 1 # symbol assigned to entries out of kb or for padding to target_ids
         self.kb_rel_ov_idx = 1 # symbol assigned to entries out of kb or for padding to target_ids
 
-	glove_model = gensim.models.KeyedVectors.load_word2vec_format('/dccstor/cssblr/amrita/resources/glove/GoogleNews-vectors-negative300.bin', binary=True)
+	glove_model = gensim.models.KeyedVectors.load_word2vec_format(glove_dir, binary=True)#/dccstor/cssblr/amrita/resources/glove/GoogleNews-vectors-negative300.bin', binary=True)
         vocab = glove_model.wv.vocab.keys()
         self.glove_embedding = {v:glove_model.wv[v] for v in vocab}
         print 'loaded glove embeddings'
 	self.ann_rel = AnnoyIndex(300,  metric='euclidean')
-	self.ann_rel.load('../kvmem_preproc/relation_linker/annoy_index_rel_noisy/glove_embedding_of_vocab.ann')
-	self.ann_pickle_rel = pkl.load(open('../kvmem_preproc/relation_linker/annoy_index_rel_noisy/index2rel.pkl'))
+	self.ann_rel.load('relation_linker/annoy_index_rel_noisy/glove_embedding_of_vocab.ann')
+	self.ann_pickle_rel = pkl.load(open('relation_linker/annoy_index_rel_noisy/index2rel.pkl'))
 	self.ann_type = AnnoyIndex(300,  metric='euclidean')
-	self.ann_type.load('../kvmem_preproc/type_linker/annoy_index_type/glove_embedding_of_vocab.ann')
-	self.ann_pickle_type = pkl.load(open('../kvmem_preproc/type_linker/annoy_index_type/index2type.pkl'))
-	self.types = json.load(open('../kvmem_preproc/type_linker/annoy_index_type/type_names.json'))
+	self.ann_type.load('type_linker/annoy_index_type/glove_embedding_of_vocab.ann')
+	self.ann_pickle_type = pkl.load(open('type_linker/annoy_index_type/index2type.pkl'))
+	self.types = json.load(open('type_linker/annoy_index_type/type_names.json'))
 	
         #************************************************************************#
     

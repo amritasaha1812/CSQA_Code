@@ -4,17 +4,6 @@ import cPickle as pkl
 import os
 #from params import *
 from prepare_data_for_hred import PrepareData as PrepareData
-'''
-from prepare_data_for_hred_sec import PrepareData as PrepareData_sec
-from prepare_data_for_hred_indir import PrepareData as PrepareData_indir
-from prepare_data_for_hred_clar import PrepareData as PrepareData_clar
-from prepare_data_for_hred_sec_dir import PrepareData as PrepareData_sec_dir
-from prepare_data_for_hred_set import PrepareData as PrepareData_set
-from prepare_data_for_hred_quant import PrepareData as PrepareData_quant
-from prepare_data_for_hred_quant_count import PrepareData as PrepareData_quant_count
-from prepare_data_for_hred_comp import PrepareData as PrepareData_comp
-from prepare_data_for_hred_comp_count import PrepareData as PrepareData_comp_count
-'''
 start_symbol_index = 0
 end_symbol_index = 1
 unk_symbol_index = 2
@@ -39,16 +28,22 @@ def get_dialog_dict(param):
     max_len = param['max_len']
     input_graph = param['input_graph']
     stopwords = param['stopwords']
+    stopwords_histogram = param['stopwords_histogram']
     max_mem_size = param['memory_size']
     max_target_size = param['gold_target_size']
     ques_type_id = param['ques_type_id']
-    preparedata = PrepareData(max_utter, max_len, start_symbol_index, end_symbol_index, unk_symbol_index, pad_symbol_index, kb_pad_idx, nkb, input_graph, stopwords, max_mem_size, max_target_size, cutoff=vocab_freq_cutoff)
+    vocab_max_len = param['vocab_max_len']
+    wikidata_dir = param['wikidata_dir']
+    lucene_dir = param['lucene_dir'] 
+    transe_dir = param['transe_dir']
+    glove_dir = param['glove_dir']
+    preparedata = PrepareData(max_utter, max_len, start_symbol_index, end_symbol_index, unk_symbol_index, pad_symbol_index, kb_pad_idx, nkb, stopwords, stopwords_histogram, lucene_dir, transe_dir, wikidata_dir, glove_dir, max_mem_size, max_target_size, vocab_max_len, True, cutoff=vocab_freq_cutoff)
     if os.path.isfile(vocab_file):
         print 'found existing vocab file in '+str(vocab_file)+', ... reading from there'
     print 'to delete later ',os.path.join(dump_dir_loc, "train")	
-    # preparedata.prepare_data(train_dir_loc, vocab_file, vocab_stats_file, os.path.join(dump_dir_loc, "train"), train_data_file, ques_type_id)
-    # preparedata.prepare_data(valid_dir_loc, vocab_file, vocab_stats_file, os.path.join(dump_dir_loc, "valid"), valid_data_file, ques_type_id)
-    preparedata.prepare_data(test_dir_loc, vocab_file, vocab_stats_file, os.path.join(dump_dir_loc, "test"), test_data_file, ques_type_id)
+    preparedata.prepare_data(train_dir_loc, vocab_file, vocab_stats_file, os.path.join(dump_dir_loc, "train"), train_data_file, ques_type_id)
+    preparedata.prepare_data(valid_dir_loc, vocab_file, vocab_stats_file, os.path.join(dump_dir_loc, "valid"), valid_data_file, ques_type_id)
+    #preparedata.prepare_data(test_dir_loc, vocab_file, vocab_stats_file, os.path.join(dump_dir_loc, "test"), test_data_file, ques_type_id)
 
 
 def get_dialog_dict_for_test(param, test_type):
@@ -63,32 +58,16 @@ def get_dialog_dict_for_test(param, test_type):
     max_len = param['max_len']
     input_graph = param['input_graph']
     stopwords = param['stopwords']
+    stopwords_histogram = param['stopwords_histogram']
     max_mem_size = param['memory_size']
     max_target_size = param['gold_target_size']
     ques_type_id = param['ques_type_id']
     vocab_max_len = param['vocab_max_len']
-    '''	
-    if ques_type_id == 2:
-        preparedata = PrepareData_sec(max_utter, max_len, start_symbol_index, end_symbol_index, unk_symbol_index, pad_symbol_index, kb_pad_idx, nkb, input_graph, stopwords, max_mem_size, max_target_size, vocab_max_len, True, cutoff=vocab_freq_cutoff)
-    elif ques_type_id == 9:
-        preparedata = PrepareData_indir(max_utter, max_len, start_symbol_index, end_symbol_index, unk_symbol_index, pad_symbol_index, kb_pad_idx, nkb, input_graph, stopwords, max_mem_size, max_target_size, vocab_max_len, True, cutoff=vocab_freq_cutoff)
-    elif ques_type_id == 4:
-	preparedata = PrepareData_set(max_utter, max_len, start_symbol_index, end_symbol_index, unk_symbol_index, pad_symbol_index, kb_pad_idx, nkb, input_graph, stopwords, max_mem_size, max_target_size, vocab_max_len, True, cutoff=vocab_freq_cutoff)
-    elif ques_type_id == 3:
-        preparedata = PrepareData_clar(max_utter, max_len, start_symbol_index, end_symbol_index, unk_symbol_index, pad_symbol_index, kb_pad_idx, nkb, input_graph, stopwords, max_mem_size, max_target_size, vocab_max_len, True, cutoff=vocab_freq_cutoff)
-    elif ques_type_id == 10:
-	preparedata = PrepareData_sec_dir(max_utter, max_len, start_symbol_index, end_symbol_index, unk_symbol_index, pad_symbol_index, kb_pad_idx, nkb, input_graph, stopwords, max_mem_size, max_target_size, vocab_max_len, True, cutoff=vocab_freq_cutoff)
-    elif ques_type_id == 12:
-	preparedata = PrepareData_quant(max_utter, max_len, start_symbol_index, end_symbol_index, unk_symbol_index, pad_symbol_index, kb_pad_idx, nkb, input_graph, stopwords, max_mem_size, max_target_size, vocab_max_len, True, cutoff=vocab_freq_cutoff)	
-    elif ques_type_id == 13:
-	preparedata = PrepareData_quant_count(max_utter, max_len, start_symbol_index, end_symbol_index, unk_symbol_index, pad_symbol_index, kb_pad_idx, nkb, input_graph, stopwords, max_mem_size, max_target_size, vocab_max_len, True, cutoff=vocab_freq_cutoff)
-    elif ques_type_id == 14:
-	preparedata = PrepareData_comp(max_utter, max_len, start_symbol_index, end_symbol_index, unk_symbol_index, pad_symbol_index, kb_pad_idx, nkb, input_graph, stopwords, max_mem_size, max_target_size, vocab_max_len, True, cutoff=vocab_freq_cutoff)
-    elif ques_type_id == 15:
-        preparedata = PrepareData_comp_count(max_utter, max_len, start_symbol_index, end_symbol_index, unk_symbol_index, pad_symbol_index, kb_pad_idx, nkb, input_graph, stopwords, max_mem_size, max_target_size, vocab_max_len, True, cutoff=vocab_freq_cutoff)
-    else:
-    '''
-    preparedata = PrepareData(max_utter, max_len, start_symbol_index, end_symbol_index, unk_symbol_index, pad_symbol_index, kb_pad_idx, nkb, input_graph, stopwords, max_mem_size, max_target_size, vocab_max_len, True, cutoff=vocab_freq_cutoff)
+    wikidata_dir = param['wikidata_dir']
+    lucene_dir = param['lucene_dir']
+    transe_dir = param['transe_dir']
+    glove_dir = param['glove_dir'] 
+    preparedata = PrepareData(max_utter, max_len, start_symbol_index, end_symbol_index, unk_symbol_index, pad_symbol_index, kb_pad_idx, nkb, input_graph, stopwords, stopwords_histogram, lucene_dir, transe_dir, wikidata_dir, glove_dir, max_mem_size, max_target_size, vocab_max_len, True, cutoff=vocab_freq_cutoff)
     if os.path.isfile(vocab_file):
         print 'found existing vocab file in '+str(vocab_file)+', ... reading from there'
     print 'to delete later ',os.path.join(dump_dir_loc, "train")
@@ -114,12 +93,6 @@ def get_utter_seq_len(dialogue_dict_w2v, dialogue_dict_kb, dialogue_target, dial
     padded_sources = np.asarray([xi[:-1-max(0, len(xi)-max_mem_size)]+[kb_pad_idx]*(max(0,max_mem_size-len(xi)))+[xi[-1]] for xi in dialogue_sources], dtype=np.int32) 
     padded_rel = np.asarray([xi[:-1-max(0, len(xi)-max_mem_size)]+[kb_pad_idx]*(max(0,max_mem_size-len(xi)))+[xi[-1]] for xi in dialogue_rel],  dtype=np.int32)
     padded_key_target = np.asarray([xi[:-1-max(0, len(xi)-max_mem_size)]+[kb_pad_idx]*(max(0,max_mem_size-len(xi)))+[xi[-1]] for xi in dialogue_key_target],  dtype=np.int32)
-    #print 'padded_sources',padded_sources.shape
-    #print 'padded_rel ', padded_rel.shape
-    #print 'padded_target', padded_key_target.shape
-    #padded_sources = np.asarray([xi[:-1][:max_mem_size-1]+[xi[-1]] for xi in dialogue_sources]) #[[xij for xij in xi] for xi in dialogue_sources])
-    #padded_rel = np.asarray([xi[:-1][:max_mem_size-1]+[xi[-1]] for xi in dialogue_rel]) #[[xij for xij in xi] for xi in dialogue_rel])
-    #padded_key_target = np.asarray([xi[:-1][:max_mem_size-1]+[xi[-1]] for xi in dialogue_key_target]) #[[xij for xij in xi] for xi in dialogue_key_target])
     return padded_utters_id_w2v, padded_utters_id_kb, padded_target, padded_response, padded_response_length, padded_decoder_input, padded_sources, padded_rel, padded_key_target
 
 def get_weights(batch_size, max_len, actual_len):
@@ -158,7 +131,6 @@ def get_batch_data(max_len, max_utter, max_mem_size, max_target_size, batch_size
     except:
 	    batch_active_set = ['']*len(data_dict)
     batch_response_len = [len(response) for response in batch_response]
-    #orig_lens = [len(filter(lambda x: x!= kb_pad_idx, batch_sources_i)) for batch_sources_i in batch_sources]
     orig_lens = [len(batch_sources_i) for batch_sources_i in batch_sources]
     max_mem_size = max(orig_lens)
     avg_mem_size = float(sum(orig_lens))/float(len(batch_sources))
@@ -279,10 +251,6 @@ def check_padding(batch_enc_w2v, batch_enc_kb, batch_target, batch_response, bat
     batch_response = batch_padding_response(batch_response, max_len, pad_size)
     batch_response_length = batch_padding_response_len(batch_response_length, pad_size)
     batch_orig_response = batch_padding_orig_response(batch_orig_response, pad_size)
-    #max_mem_size = max([len(batch_sources_i) for batch_sources_i in batch_sources])
-    #avg_mem_size = float(sum([len(batch_sources_i) for batch_sources_i in batch_sources])/float(len(batch_sources))
-    #if max_mem_size - avg_mem_size >100:
-    #	print 'WARNING: max_mem_size ',max_mem_size, 'avg_mem_size ',avg_mem_size
     batch_sources = batch_padding_memory_ent(batch_sources, max_mem_size, pad_size) # adding one dummy entry for OOM entities
     batch_rel = batch_padding_memory_rel(batch_rel, max_mem_size, pad_size) # adding one dummy entry for OOM entities
     batch_key_target = batch_padding_memory_ent(batch_key_target, max_mem_size, pad_size) # adding one dummy entry for OOM entities

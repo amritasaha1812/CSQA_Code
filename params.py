@@ -4,14 +4,18 @@ import os
 def get_params(dir):
     param={}
     dir= str(dir)
-    param['train_dir_loc']="/dccstor/cssblr/vardaan/dialog-qa/QA_train_final6/train"
-    param['valid_dir_loc']="/dccstor/cssblr/vardaan/dialog-qa/QA_train_final6/valid/"
-    param['test_dir_loc']="/dccstor/cssblr/vardaan/dialog-qa/QA_train_final6/test/"
+    param['train_dir_loc']="/dccstor/cssblr/vardaan/dialog-qa/CSQA_v7/train"
+    param['valid_dir_loc']="/dccstor/cssblr/vardaan/dialog-qa/CSQA_v7/valid/"
+    param['test_dir_loc']="/dccstor/cssblr/vardaan/dialog-qa/CSQA_v7/test/"
+    param['wikidata_dir']="/dccstor/cssblr/vardaan/dialog-qa/"
+    param['transe_dir']="transe_dir/"
+    param['lucene_dir']="lucene_dir/"
+    param['glove_dir']="/dccstor/cssblr/amrita/resources/glove/"
     param['dump_dir_loc']=dir+"/dump/"
     param['test_output_dir']=dir+"/test_output/"
     param['vocab_file']=dir+"/vocab.pkl"
-    param['train_data_file']=[dir+"/dump/"+x for x in os.listdir(dir+"/dump") if x.startswith('train_data_file')]# "/dump/train_data_file_1.pkl",dir+"/dump/train_data_file_2.pkl",dir+"/dump/train_data_file_3.pkl",dir+"/dump/train_data_file_4.pkl",dir+"/dump/train_data_file_5.pkl"]
-    param['valid_data_file']=[dir+"/dump/"+x for x in os.listdir(dir+"/dump") if x.startswith('valid_data_file')]#[dir+"/dump/valid_data_file_1.pkl"]
+    param['train_data_file']=[dir+"/dump/"+x for x in os.listdir(dir+"/dump") if x.startswith('train_data_file')]
+    param['valid_data_file']=[dir+"/dump/"+x for x in os.listdir(dir+"/dump") if x.startswith('valid_data_file')]
     param['test_data_file']=dir+"/dump/test_data_file.pkl"
     param['vocab_file']=dir+"/vocab.pkl"
     param['response_vocab_file']=dir+"/response_vocab.pkl"
@@ -41,6 +45,7 @@ def get_params(dir):
     param['wikidata_embed_size']= 100
     param['memory_size'] = 50000
     param['gold_target_size'] = 10
-    param['input_graph'] = '/dccstor/cssblr/vardaan/neural_kbqa_wikidata/data/movieqa/clean_full_kb_graph.txt'
-    param['stopwords'] = '/dccstor/cssblr/vardaan/neural_kbqa_wikidata/data/movieqa/stopwords.txt'
+    param['stopwords'] = 'stopwords.pkl'
+    param['stopwords_histogram'] = 'stopwords_histogram.txt'
+    param['vocab_max_len'] = 40000
     return param

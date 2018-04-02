@@ -1,5 +1,6 @@
 check_missing_memory.py
 check_mem_preselection_failures.py
+transe_dir/*
 browse.py
 *.pyc
 hierarchy_model_old.py*
@@ -12,9 +13,9 @@ run_test_twostep_old.*
 run_model_old.py*
 run_old.sh*
 copy/*
-new_model_softmax_kvmem_old3/*
+model_softmax_kvmem/*
 obsolete/*
-new_model_softmax_decoder2/*
+model_softmax_decoder/*
 model_softmax_test/*
 to_delete.sh
 knowledge_graph.py*

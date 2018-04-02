@@ -7,6 +7,10 @@ def get_params(dir, ques_type_id):
     param['train_dir_loc']="/dccstor/cssblr/vardaan/dialog-qa/QA_train_final6/train"
     param['valid_dir_loc']="/dccstor/cssblr/vardaan/dialog-qa/QA_train_final6/valid"
     param['test_dir_loc']="/dccstor/cssblr/vardaan/dialog-qa/QA_train_final6/test/"
+    param['wikidata_dir']="/dccstor/cssblr/vardaan/dialog-qa/"
+    param['transe_dir']="transe_dir/"
+    param['lucene_dir']="lucene_dir/"
+    param['glove_dir']="/dccstor/cssblr/amrita/resources/glove/"
     param['dump_dir_loc']=dir+"/dump/"
     param['test_output_dir']=dir+"/test_output_"+ques_type_id+"/"
     param['vocab_file']=dir+"/vocab.pkl"
@@ -41,7 +45,7 @@ def get_params(dir, ques_type_id):
     param['wikidata_embed_size']= 100
     param['memory_size'] = 10000
     param['gold_target_size'] = 10
-    param['input_graph'] = '/dccstor/cssblr/vardaan/neural_kbqa_wikidata/data/movieqa/clean_full_kb_graph.txt'
-    param['stopwords'] = '/dccstor/cssblr/vardaan/neural_kbqa_wikidata/data/movieqa/stopwords.txt'
+    param['stopwords'] = 'stopwords.pkl'
+    param['stopwords_histogram'] = 'stopwords_histogram.txt'
     param['vocab_max_len'] = 40000
     return param

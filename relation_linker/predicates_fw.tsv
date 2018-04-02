@@ -1,0 +1,318 @@
+P1001	applies to jurisdiction	the item (an institution, law, public office ...) belongs to or applies to the value (a territorial jurisdiction: a country, state, municipality, ...)	of jurisdiction, linked to jurisdiction, belongs to jurisdiction, jurisdiction, applies to jurisdiction,
+P101	field of work	specialization of a person or organization, see P106 for the occupation	field of study, fields, discipline, subject, area, specialism, domain, academic discipline, scientific discipline, academic subject, academic area, scientific area,
+P1013	criterion used	property by which a distinction or classification is made	basis, with respect to, by, on the basis of, according to, with reference to, respectively to,
+P102	member of political party	the political party of which this politician is or has been a member	political party, party,
+P1027	conferred by	person or organization who awards a prize to or bestows an honor upon a recipient	awarded by, bestowed by, given by, granted by, presented by,
+P1028	donated by	person or organization who donated the object	
+P1029	crew member	person that participated operating or serving aboard this vehicle	
+P103	native language	language or languages a person has learned from birth	first language, mother tongue, language native,
+P1037	manager/director	person who manages any kind of group	art director, manager, director,
+P1038	relative	family member (qualify with "type of kinship", P1039; for direct family member please use specific property)	family, family member,
+P1039	type of kinship	qualifier of "relative (P1038)" to indicate unusual family relationships (ancestor, son-in-law, adoptions, etc). Avoid using for relationships that can be derived from the family tree or have an explicit property (spouse, child, etc)	kinship, relationship (kinship), type of relationship,
+P105	taxon rank	level in a taxonomic hierarchy	taxonomic rank, rank, type of taxon,
+P1050	medical condition	disease or other health problem affecting an individual human or other animal	disability, ailment, health problem, disorder, illness, disease, paralympic disability,
+P1056	product	material or product produced by a business, industry, facility, or process	material produced, produces, manufactures, makes, has product, produced,
+P1057	chromosome	chromosome on which an entity is localized	on chromosome,
+P106	occupation	occupation of a person; see also "field of work" (Property:P101), "position held" (Property:P39)	profession, job, work, career, employment, craft,
+P1064	track gauge	spacing of the rails on a railway track	gauge,
+P1066	student of	person who has taught this person	teacher, professor, pupil of, supervisor, academic supervisor, disciple of, studied under, master, mentor, advisor, tutor,
+P1071	location of final assembly	place where the item was made; location of final assembly	assembly location, place built, place made,
+P108	employer	organization for which the subject works or worked	workplace, employed by, works at, working for,
+P1080	from fictional universe	subject's fictional entity is in the object narrative. See also P1441 and P1445	from universe, universe, featured in universe, appears in universe, fictional universe where entity is from, from mythology,
+P110	illustrator	illustrator of a book	illustration by, illustrated by,
+P112	founder	founder or co-founder of this organization, religion or place	founded by, is founded by, founded, co-founder, founders,
+P113	airline hub	airport that serves as a hub for an airline	hub, hub airport,
+P1142	political ideology	political ideology of this organization	ideology,
+P115	home venue	home stadium or venue of a sports team or applicable performing arts organization	ground, home field, arena, home ground, stadium, ballpark, home water,
+P118	league	league in which team plays or has played in	division, sports league,
+P119	place of burial	location of grave, resting place, place of ash-scattering, etc, (e.g. town/city or cemetery) for a person or animal. There may be several places: e.g. re-burials, cenotaphs, parts of body buried separately.	burial place, resting place, place of grave, buried in, grave at, location of burial, tomb,
+P1192	connecting service	service stopping at a station	
+P1196	manner of death	circumstances of a person's death; one of: natural causes, accident, suicide, homicide, pending investigation or special 'unknown value'.  Use 'cause of death' (P509) for more immediate or underlying causes and events, e.g. heart attack, car accident	circumstance of death, type of death,
+P121	item operated	object used by the subject	fleet, aircraft in fleet, aircraft operated, equipment operated, facility operated, service operated, operator of, operated, operates, eq, item operated, acop, aircraft carried,
+P122	basic form of government	the subject's government	type of government, form of government, government,
+P123	publisher	organization responsible for publishing books, periodicals or software	book publisher, video game publisher, software publisher, publishing house, published by,
+P126	maintained by	person or organization in charge of keeping the subject (for instance an infrastructure) in functioning order	maintenance, administered by, maintainer, custodian, administrator,
+P127	owned by	owner of the subject	is owned by, owner, belongs to, shareholder, stockholder,
+P129	physically interacts with	physical entity that the subject interacts with	
+P1303	instrument	instrument that a person plays	plays,
+P1308	officeholder	person who holds an office	incumbent,
+P1312	has facet polytope	facet of a polytope, in the next-lower dimension	facet of a polytope,
+P1313	office held by head of government	political office that is fulfilled by the head of the government of this item	office of head of government, position of head of government, position held by head of government, title of head of government,
+P1340	eye color	color of the irises of a person's eyes	eye colour,
+P1344	participant of	event a person or an organization was a participant in, inverse of P710 or P1923	took part, took part in, participant in, participated in, competed in,
+P1346	winner	winner of an event	won by, victor, champion, winners,
+P135	movement	literary, artistic or philosophical movement associated with this person or work	school,
+P136	genre	a creative work's genre or the genre in which an artist works. Use main subject (P921) to relate creative works to their topic	music genre, film genre, artistic genre, literary genre, kind of music,
+P137	operator	person or organization that operates the equipment, facility, or service	service operator, facility operator, operated by, managed by, administrator, item operator, user,
+P1376	capital of	country, state, department, canton or other administrative division of which the municipality is the governmental seat	county seat of, county seat for,
+P138	named after	entity or event that inspired the subject's name, or namesake (in at least one language)	eponym, named for, namesake, etymology, toponym, name after,
+P1382	coincident with	object that is partially part of, but not fully part of (P361), the subject	partially overlaps, partial concurrency, concurrent with, partially in, concurrency,
+P1383	contains settlement	settlement which an administrative division contains	
+P1389	product certification	certification for a product, qualify with P1001 ("applies to jurisdiction") if needed	
+P1399	convicted of	crime a person was convicted of	
+P140	religion	religion of a person, organization or religious building. Note that a church is not a religion!	faith, religious affiliation, life stance, denomination,
+P1403	original combination	for animals: the combination (binomen or trinomen) where the species-group name used in this taxon name was first published	protonym,
+P1408	licensed to broadcast to	place that a radio/TV station is licensed/required to broadcast to	city of license, community of license,
+P1411	nominated for	award nomination received by a person, organisation or creative work (inspired from "award received" (Property:P166))	nominee for, nomination received,
+P1412	languages spoken, written or signed	language(s) that a person speaks or writes. Can include native languages	languages spoken, language spoken, language of expression, languages of expression, languages signed, language signed, language written, language read, language used, language,
+P1416	affiliation	organization that a person is affiliated with	affiliated with,
+P1427	start point	starting place of this journey, flight, voyage, trek, migration etc. (excl. spaceflight launch)	flight origin, start location, from, journey start, journey origin,
+P1431	executive producer	executive producer of a movie or TV show	
+P1433	published in	larger work that a given work was published in	work,
+P1434	describes the fictional universe	the subject is a work describing a fictional universe, i.e. whose plot occurs in this universe.	describes fictional universe, fictional universe described,
+P1435	heritage status	heritage status of a historical site	designation, listing, listed status, protected status, protection, legal protection, heritage designation,
+P144	based on	the work(s) used as basis for subject	fork of, derived from, extended from, copy of, adapted from, based upon,
+P1441	present in work	work in which this fictional entity (Q14897293) is present. See also P:1080 for in-universe information	from work, from narrative, featured in work, in work, in narrative, appears in, is shown in,
+P1444	destination point	intended destination for this route (journey, flight, sailing, exploration, migration etc.)	destination, to, end of journey, finish, journey destination, ending at, stopping at,
+P1445	fictional universe described in	to link a fictional universe with a work that describes it: <universe> "described in the work:" <work>	
+P1454	legal form	legal form of an organization	type of business entity,
+P1455	list of works	link to the article with the works of a person	bibliography,
+P1462	standards body	organisation that published or maintains the standard	standards organisation, standards setting organization, standards setting organisation, standards developing organization, standards developing organisation,
+P149	architectural style	architectural style of a structure	
+P1532	country for sport	country a person or a team represents when playing a sport	sporting nationality, sports nationality,
+P1533	family name identical to this first name	last name that is the same as a given first name. Use on items for given names.	related surname, related family name,
+P1542	cause of	effect of this cause	has effect, effect, has result, result, has outcome, outcome, has symptom, consequence,
+P157	killed by	person who killed the subject	killer, assassin, murderer, murdered by, executioner, assassinated by, slain by, mortally wounded by, executed by, slaughtered by,
+P1576	lifestyle	typical way of life of an individual, group, or culture	
+P159	headquarters location	specific location where an organization's HQ is or has been situated	head office location, HQ, garrison, admin HQ, seat, principle office,
+P16	highway system	system (or specific country specific road type) of which the highway is a part	network of routes, system of routes, transport network, routes system, part of network, road type,
+P161	cast member	actor performing live for a camera or audience [use "character role" (P453) as qualifier] [use "voice actor" (P725) for voice-only role]	starring, film starring, actor, actress,
+P162	producer	producer(s) of this film or music work (film: not executive producers, associate producers, etc.)	record producer, film producer,
+P163	flag	subject's flag	flag description,
+P166	award received	award or recognition received by a person, organisation or creative work	prize received, awards, honorary title, recognition title, award, honours, honors, medals, awarded, award won, prize awarded, awards received, win,
+P1686	for work	qualifier of award received (P166) to specify the work that an award was given to the creator for	for their work on, nominated for work, awarded for work,
+P169	chief executive officer	highest-ranking corporate officer appointed as the CEO within an organization	CEO, chief executive, ceo,
+P17	country	sovereign state of this item	sovereign state, nation, state, land,
+P170	creator	maker of a creative work or other object (where no more specific property exists)	artist (non-musical), created by, painter, sculptor,
+P171	parent taxon	parent taxon of the taxon in question	taxon parent, higher taxon,
+P172	ethnic group	subject's ethnicity (consensus is that a VERY high standard of proof is needed for this field to be used. In general this means 1) the subject claims it him/herself, or 2) it is widely agreed on by scholars, or 3) is fictional and portrayed as such).	ethnicity, race,
+P175	performer	musician, music group, or other performer associated with this work	band, musician, music group, musical artist, group, singer,
+P1750	name day	day of the year associated with a first/given name. A qualifier should be used to identify the calendar that is being used. Distinguish from "feast day" (P:P841)	
+P176	manufacturer	manufacturer or producer of this product	manufactured by, maker, mfr, built by, builder, made by, producer (of product),
+P177	crosses	obstacle (body of water, road, ...) which this bridge crosses over or this tunnel goes under	bridge over, tunnel under,
+P178	developer	organisation or person that developed this item	developed by,
+P180	depicts	depicted entity (see also P921: subject heading)	depiction of, painting of, motif, portrait of, landscape of,
+P183	endemic to	sole location or habitat type where the taxon lives	endemism,
+P184	doctoral advisor	person who supervised the doctorate or PhD thesis of the subject	advisor, doctoral supervisor, supervisor,
+P186	material used	material the subject is made of or derived from	medium, made from, constructed from, constructed out of, construction material, media, built from, built out of, manufactured from, manufactured out of, crafted from, crafted out of, formed from, formed out of, made of, ore, source material, raw material, feedstock, reactant, ingredient, contains,
+P1884	hair color	person's hair color. Use P585 as qualifier if there's more than one value.	hair colour, color of hair, colour of hair,
+P1885	cathedral	principal church of a religious district	
+P189	location of discovery	where the item was located when discovered	findspot, location of discovered object, discovery place, place of discovery,
+P19	place of birth	most specific known (e.g. city instead of country, or hospital instead of city)	birthplace, born in, POB, birth place, location born, born at, birth location, location of birth, location, birth city,
+P190	sister city	twin towns, sister cities, twinned municipalities and other localities that have a partnership or cooperative agreement, either legally or informally acknowledged by their governments	twin town, sister town, twin cities, twin city, partner city, partner town,
+P1923	participating teams	Like 'Participant' (P710) but for teams. For an event like a cycle race or a football match you can use this property to list the teams and P710 to list the individuals (with 'member of sports team' (P54)' as a qualifier for the individuals)	
+P193	main building contractor	the main organization responsible for construction of this structure or building	building contractor, built by, constructed by, builder,
+P194	legislative body	legislative body governing this entity; political institution with elected representatives, such as a parliament/legislature or council	representative body, parliament, council, assembly, diet, legislature, rural council, district council, municipal council, aboriginal council, indigenous council, city council, local government area, LGA,
+P195	collection	art, museum or bibliographic collection the subject is part of	art collection, museum collection,
+P196	minor planet group	is in grouping of minor planets according to similar orbital characteristics	asteroid group,
+P197	adjacent station	the stations next to this station, sharing the same line(s)	next station, previous station, next stop, neighbouring station,
+P1990	species kept	taxa, preferably species, present at a zoo, botanical garden,  collection, or other institution. NOT specific animals, not for any geographic location	animals housed, animals species kept, resident animals, plant taxon in collection, resident animal species, species holdings, animals at zoo, animals in aquarium, trees in arboretum, plant in herborium, plant taxon in botanical garden, rose varity in rose garden, animals kept, captive animals,
+P1995	medical specialty	main medical specialty concerned with a specific condition	
+P20	place of death	the most specific known (e.g. city instead of country, or hospital instead of city)	deathplace, died in, death place, POD, location of death, death location,
+P200	lake inflows	major inflow sources â€” rivers, aquifers, glacial runoff, etc. Some terms may not be place names, e.g. none	inflow, inflows, lake inflow,
+P201	lake outflow	rivers and other outflows waterway names. If evaporation or seepage are notable outflows, they may be included. Some terms may not be place names, e.g. evaporation	outflows, outflow,
+P206	located next to body of water	sea, lake or river	on lake, next to lake, located on body of water, On river, on bay, on harbour, on shore of, on the shore of, on the coast of, on coast of,
+P2061	aspect ratio	image width to height ratio of films, pictures photographs	image aspect ratio,
+P2079	fabrication method	method, process or technique used to grow, cook, weave, build, assemble, manufacture the item	fabrication process, manufacturing process, production process, manufacturing method, production method, made by, asssembly process, assembly method, by,
+P21	gender	sexual identity of subject: male (Q6581097), female (Q6581072), intersex (Q1097630), transgender female (Q1052281), transgender male (Q2449503). Animals: male animal (Q44148), female animal (Q43445). Groups of same gender use "subclass of" (P279)	gender identity, gender expression, gender, biological sex, man, woman, male, female, intersex, sex,
+P2175	medical condition treated	disease that this pharmaceutical drug, procedure, or therapy treats (this isn't a statement about the effectiveness of the drug)	disease treated, treats, treats medical condition, treats disease,
+P2176	drug used for treatment	drug that is used to treat this medical condition (this isn't a statement about the effectiveness of the drug)	used for treatment, treatment, prescribed drug, treated by,
+P22	father	male parent	dad, has father, man, the parent of that person, parent, daddy, papa, is son of, is child of, is daughter of,
+P2239	first aid measures	actions to take to help a person in the case of accidents, injuries and accidental exposures to harmful chemicals	first aid response,
+P2293	genetic association	general link between a disease and the causal genetic entity, if the detailed mechanism is unknown/unavailable	
+P2348	period	historic period or era in which the subject occured	era, historic era, epoch,
+P2354	has list	Wikimedia list related to this subject	list, list for this topic, topic's list, related list,
+P237	coat of arms	subject's coat of arms	
+P241	military branch	branch to which this military unit, award, office, or person belongs, e.g. Royal Navy	branch, formation, service branch,
+P2416	sports discipline competed in	discipline or event an athlete competed in within a sport	sport disciplines competed in, sport discipline competed in, sport discipline, sports discipline, sporting event, event in sports, sports event, sports disciplines competed in,
+P2417	stage classification	stage results and ranking of a stage race	
+P2439	language	language associated with this item	
+P2453	nominee		
+P248	stated in	to be used in the source field, to indicate where a claim is made	source of claim, originating source, stated by,
+P25	mother	female parent	mum, mom, mam, has mother, parent, is son of, is daughter of, is child of,
+P2522	victory	competition or event won by the subject	won event,
+P2554	production designer		
+P26	spouse	the subject has the object as their spouse (husband, wife, partner, etc.). Use "cohabitant" (P451) for non-married companions	husband, wife, married to, consort, partner, marry,
+P2632	place of detention		
+P264	record label	brand and trademark associated with the marketing of subject music recordings and music videos	label,
+P2643	Carnegie Classification of Institutions of Higher Education	classification of colleges and universities in the United States	
+P2695	type locality	the locality where a particular rock type, stratigraphic unit or mineral species is defined from (can coincide but not the same as p189)	(co)-type locality,
+P27	country of citizenship	the object is a country that recognizes the subject as its citizen	citizenship, nationality, citizen of, subject of (country),
+P272	production company	company that produced this film, audio or performing arts work	film studio, studio, motion picture studio, movie studio, production house, theatre company, theater company, theatrical troupe, ballet company, broadcasting company,
+P275	license	license under which this copyrighted work is released	licence, content license, content licence,
+P276	location	location the item, physical object or event is within. In case of an administrative entity use P131. In case of a distinct terrain feature use P706.	moveable object location, located in, event location, venue, is in, location of item, place held,
+P277	programming language	the programming language(s) in which the software is developed	
+P282	writing system	alphabet, character set or other system of writing used by subject language	alphabet, script,
+P2860	cites	citation from one creative work to another	bibliographic citation, citation,
+P287	designer	designer of this item	designed by,
+P289	vessel class	vessel classification (e.g. Nelson-class battleship)	ship class, submarine class, spacecraft class, class of vessel,
+P291	place of publication	geographical place of publication of the edition (use 1st edition when referring to works)	release region, publication region, published in (place), publication place, publication location,
+P2962	title of chess player		
+P2978	wheel arrangement	Wheel/axle arrangement for locomotives, railcars and other rolling stock	
+P30	continent	continent of which the subject is a part. Use for countries, locations in Antarctica, and items located in countries that belong to more than one continent, e.g. Russian cities.	
+P306	operating system	operating system (OS) on which a software works or the OS installed on hardware	OS,
+P3081	damaged	physical items damaged by this event	structures damaged,
+P3085	qualifies for event	this event qualifies for that event	
+P3091	mount	creature ridden by the subject, for instance a horse	horse, steed,
+P3093	recovered by	person, organisation or vehicle that recovered the item. Use the most specific value known.	recovery vehicle, recovery group,
+P3094	develops from	this class of items develops from another class of items	
+P3095	practiced by	type of agents that study this religion or activity or work in this profession	studied by, associated with, has proponent, practised by,
+P3103	has tense		
+P3113	does not have part	use to claim what the item does not have, limited to things which would often be expected to be present.	missing, doesn't have, has part missing, lacks,
+P3137	parent peak	parent is the peak whose territory this peak resides in, based on the contour of the lowest col	
+P3150	birthday	item for day and month on which the subject was born. Used when full "date of birth" (P569) isn't known.	
+P3161	has grammatical mood		
+P3173	offers view on	things, places another place offers views on	has view of, has views of, offers view of, views of, views to, view of, view to,
+P3179	territory overlaps	part or all of the area associated with (this) entity overlaps part or all of the area associated with that entity	partially contains territorial extent,
+P3189	innervated by	nerves which innervate this anatomical structure	
+P3190	innervates	anatomical structures innervated by this nerve	
+P3195	league points system	point system of an e.g. sports league	
+P3263	base	configuration of a polytop vertices around the symmetry axis	
+P3264	radix	number of distinct digits in a positional numeral system	
+P3279	statistical leader	leader of a sports tournament in one of statistical qualities (points, assists, rebounds etc.). Don't use for overall winner. Use a qualifier to link to the item about the quality.	
+P3301	broadcast by	the channel, network, website or service that broadcast this item on tv, radio or online	broadcaster, TV channel, TV network, radio channel, radio network, TV station, radio station, streamed by,
+P3320	board member	member(s) of the board for the organization	member of the board of directors,
+P344	director of photography	person responsible for the framing, lighting and filtration of the subject work	cinematographer,
+P35	head of state	official with the highest formal authority in a country	chief of state, president, king, queen, emperor, monarch, state headed by,
+P355	subsidiary	subsidiary of a company or organization, opposite of parent company (P749)	subsidiary company, subsidiary entities, parent company of,
+P358	discography	link to discography in artist or band page	discography link,
+P36	capital	location (city, municipality) of governmental seat of the country, or administrative territorial entity	capital city, capital town, chef-lieu, principal place, county seat, administrative centre,
+P361	part of	subject is a part of that object. Inverse property of "has part" (P527).	meronym of, section of, system of, subsystem of, subassembly of, merged into, contained within, assembly of, within a set, part of-property, merged with,
+P364	original language of work	language in which a work was originally created	original language, language of the original work, created on language,
+P366	use	main use of the subject (includes current and former usage)	function, role, mission, purpose, utility, used for, used in,
+P37	official language	language designated as official by this item	language official,
+P371	presenter	someone who takes a main role in presenting a radio or television program	host, hostess, TV presenter, TV host,
+P375	space launch vehicle	rocket or other vehicle for launching subject payload into outer space	carrier rocket, launch vehicle,
+P376	located on astronomical body	astronomical body on which features or places are situated	planet, astronomical body (location),
+P38	currency	currency used by item	base currency,
+P39	position held	subject currently or formerly holds the object position or public office	political office held, political seat, public office, office held, position occupied,
+P397	parent astronomical body	major astronomical body the item belongs to	parent body, orbits,
+P398	child astronomical body	minor body that belongs to the item	child body, satellite, orbited by,
+P40	child	subject has the object in their family as their offspring son or daughter (independently of their age)	son, daughter, kid, has child, children, sons, daughters, kids, has children, has son, has sons, has daughter, has daughters, has kid, has kids,
+P400	platform	platform for which a work has been developed or released / specific platform version of a software developed	platforms, computing platform, game platform,
+P403	mouth of the watercourse	the body of water to which the watercourse drains	watercourse outflow, watercourse drain, tributary of, outflow, drain, river mouth, outlet,
+P404	game mode	available playing mode(s) in a video game	mode, gameplay,
+P407	language of work or name	for works (for original language use P364 and for persons P103 and P1412)	language of the name, language of name, named in language, broadcasting language, audio language, available in, language of work,
+P408	software engine	software engine employed by the subject item	engine of software, game engine, powered by,
+P410	military rank	military rank achieved by a person (should usually have a "start date" qualifier)	rank,
+P411	canonization status	stage in the process of attaining sainthood per the subject's religious organization	sainthood status, canonisation status,
+P412	voice type	person's voice type. expected values: soprano, mezzo-soprano, contralto, countertenor, tenor, baritone, bass (and derivatives)	vocal type, range of voice, type of voice,
+P413	position played on team / speciality	position or specialism of a player on a team, e.g. Small Forward	player position, fielding position, specialism,
+P414	stock exchange	exchange on which this company is traded	
+P417	patron saint	patron saint adopted by the subject	
+P421	located in time zone	time zone for this item	timezone, tz, time zone,
+P425	field of this occupation	activity corresponding to this occupation (use only for occupations - for people use Property:P101)	profession's field, activity corresponding to this occupation, field of this profession,
+P427	taxonomic type	the type genus of this family (or subfamily, etc), or the type species of this genus (or subgenus, etc)	type species, type genus,
+P437	distribution	method (or type) of distribution for the subject	media, media type, type of media, form of publication,
+P448	location of spacecraft launch	site or launch pad from where the spacecraft was or will be launched	launch site,
+P449	original network	network(s) the radio or television show was originally aired on, not including later re-runs or additional syndication	original channel, channel, TV channel, radio network, network, television channel, radio station, original air channel, broadcast on,
+P450	astronaut mission		
+P451	partner	someone with whom the person is in a relationship without being married. Use "spouse" for married couples.	partner, mistress, domestic partner, significant other, life partner, girlfriend, boyfriend, concubine, lover, common-law spouse, cohabitant,
+P452	industry	industry of company or organization	field of action, field of exercise, sector, branch, economic branch,
+P462	color	color of subject	colour,
+P463	member of	part of a specific organization or club. Do not use for membership in ethnic or social groups, nor for holding a position such as a member of parliament (use P39 for that).	
+P466	occupant	person or organization occupying a building or facility	occupied by, tenant, inhabitant,
+P467	legislated by	indicates that an act or bill was passed by a legislature.  The value can be a particular session of the legislature	enacted by, passed by,
+P469	lakes on river	lakes and reservoirs the river flows through, flows into or flows out of	
+P47	shares border with	countries or administrative subdivisions, of equal level, that this item borders, either by land or water	borders, bordered by, adjacent to, next to, border,
+P479	input device	input method or device used to interact with a software product	input method, input, mouse, digitiser,
+P485	archives at	the institution holding the subject's archives	papers at, correspondence at,
+P488	chairperson	presiding member of an organization, group or body	chairman, chairwoman, president, leader,
+P495	country of origin	country of origin of the creative work or subject item	place of origin,
+P50	author	main creator(s) of a written work	written by, writer,
+P504	home port	home port of the vessel (if different from "ship registry"): For civilian ships, the primary port from which the ship operates. Port of registry â†’P532 should be listed in "Ship registry". For warships, this will be the ship's assigned naval base	homeport,
+P509	cause of death	underlying or immediate cause of death.  Underlying cause (e.g. car accident, stomach cancer) preferred.  Use 'manner of death' (P1196) for broadest category, e.g. natural causes, accident, homicide, suicide	death cause, die from,
+P512	academic degree	academic degree that the person holds	degree, diploma,
+P516	powerplant	equipment or engine used to power the subject	engine, power plant, turbine, rocket engine, reactor, propulsion, power station, powerstation,
+P518	applies to part	part of the item for which the claim is valid	valid for part, line item,
+P520	armament	equippable weapon item for the subject	armed with, weapon, Ship armament,
+P53	noble family	include dynasty and nobility houses	royal house, dynasty, house,
+P530	diplomatic relation	diplomatic relations of the country	
+P532	port of registry	ship's port of registry. This is generally painted on the ship's stern (for the "home port", see Property:P504)	
+P54	member of sports team	sports teams or clubs that the subject currently represents or formerly represented	member of team, team, team played for, played for, plays for, teams played for, of team, club played for,
+P541	office contested	title of office which election will determine the next holder of	position contested,
+P551	residence	the place where the person is, or has been, resident	lived in, resident in,
+P552	handedness	handedness of the person	
+P559	terminus	the feature (intersecting road, train station, etc.) at the end of a linear feature	endpoint, termini, between,
+P560	direction	a directional identifier of something	
+P566	basionym	the legitimate, previously published name on which a new combination or name at new rank is based	
+P57	director	director(s) of this motion picture, play, video game or similar	directed by, film director, movie director,
+P58	screenwriter	author(s) of the screenplay or script for this work	scriptwriter, screenplay by, teleplay by, writer (of screenplays),
+P6	head of government	head of the executive power of a town, city, municipality, state, country, or other governmental body	mayor, prime minister, premier, first minister, head of national government, government heading by, executive power heading by, chancellor, president,
+P607	conflict	battles, wars or engagements in which the person or item participated	war, battle, theater, theatre,
+P608	exhibition history	exhibitions where the item was displayed	
+P609	terminus location	location of the terminus of a linear feature	destination, departure point, from, to, between,
+P61	discoverer or inventor	discovered, first described, or invented by	inventor, discovered by, invented by, discoverer, coined by, first described by,
+P610	highest point	point with highest elevation in a region, on a path, of a race	highest peak, zenith,
+P611	religious order	order of monks or nuns which the monastery housed	
+P629	edition or translation of	is an edition or translation of this entity	edition of, translation of,
+P636	route of administration	path by which a drug, fluid, poison, or other substance is taken into the body	
+P641	sport	sport in which the entity participates or belongs to	sports,
+P647	drafted by		
+P655	translator	adapts a creative work to another language	translated by,
+P658	tracklist	songs contained in this item	
+P664	organizer	person or institution organizing an event	organiser,
+P669	located on street	street, road, or square, where the item is located. To add the number, use Property:P670 "street number" as qualifier	is on, street, adress street, square,
+P674	characters	characters which appear in this item (plays, operas, operettas, books...)	
+P676	lyrics by	author of song lyrics; also use P86 for music composer	lyricist, lyracist, words by, writer (of song lyrics),
+P680	molecular function	represents gene ontology function annotations	
+P681	cell component	component of the cell in which this item is present	subcellular localization,
+P682	biological process	is involved in the biological process	
+P684	ortholog	orthologous gene in another species (use with 'species' qualifier)	
+P688	encodes	the product of a gene (protein or RNA)	codes for,
+P689	afflicts	type of organism which a condition or disease afflicts	
+P69	educated at	educational institution attended by the subject	education, alumni of, alumnus of, alumna of, college attended, university attended, school attended, studied at, alma mater, graduate of, graduated from, edu,
+P7	brother	subject has the object as their brother	has brother, sibling, bro,
+P702	encoded by	the gene that encodes some gene product	
+P703	found in taxon	the taxon in which the molecule or substance can be found	species,
+P706	located on terrain feature	located on the specified landform or body of water. Should not be used when the value is only political/administrative (provinces, states, countries, etc.).	takes place in, on geographical feature, on natural feature, is on, is in, location (terrain feature), island,
+P708	diocese	administrative division of the church to which the element belongs	eparchy, eparchia,
+P710	participant	person, group of people or organization that actively takes/took part in the event.  Preferably qualify with "has role" (P2868). Use P1923 for the team	artist, artists, participants, athlete, athletes, attendee, player, competitor, candidate, party, event participant, agent,
+P725	voice actor	performer of a spoken role in a creative work such as animation, video game, radio drama, or dubbing over [use "character role" (P453) as qualifier] [use "cast member" (P161) for live acting]	voice dubber, dubbed by, VO, Seiyu, voiced by, CV,
+P726	candidate	person or party that is an option for an office in an election	
+P734	family name	surname or last name of a person	last name, has surname, surname,
+P735	given name	first name or another given name of this person. Values used with the property shouldn't link disambiguations nor family names.	forename, first name, personal name, christian name, middle name,
+P737	influenced by	this person, idea, etc. is informed by that other person, idea, etc., e.g. "Heidegger was influenced by Aristotle".	informed by, has influence,
+P739	ammunition	cartridge or other ammunition used by the subject weapon	cartridge,
+P740	location of formation	location where a group or organization was formed	originates from, comes from, place of foundation, founded in, formation location, source location of group/organisation,
+P748	appointed by	who appointed the person to the office, can be used as a qualifier	
+P749	parent organization	a parent company of an organisation, opposite of subsidiaries (P355)	owned by (company or organization), subsidiary of, parent company, parent organisation, owned by (company or organisation), holding, holding company,
+P750	distributor	distributor of a creative work	distributed by,
+P765	surface played on	the surface on which the tournament is played	
+P767	contributor	person or organization that contributed to a subject: co-creator of a creative work; a player assisted to score a point or a goal in a game etc.	assistant,
+P768	electoral district	electoral district this person is representing	constituency, ward, riding, electoral area, electorate,
+P769	significant drug interaction	clinically significant interaction between two pharmacologically active substances (i.e., drugs and/or active metabolites) where concomitant intake can lead to altered effectiveness or adverse drug events.	drug interaction,
+P780	symptoms	possible symptoms of a medical condition	signs,
+P789	edibility	whether something can be eaten or not	Mushroom edibility, Palatiblity,
+P790	approved by	item is approved by other item(s) [qualifier: statement is approved by other item(s)]	
+P793	significant event	significant or notable events associated with the subject	key event, key incident, significant incident, notable event, notable incident, major event, big event, main events,
+P800	notable work	subject's notable scientific work or work of art, literature, or significance	literary works, bibliography, work, works, major works, famous works, significant works, known for, notable books, famous books,
+P802	student	notable student(s) of a person	students, teacher of, pupil, pupils, disciple, disciples,
+P805	subject of	(qualifier only) item which describes the relation identified in this statement	dedicated item, article, artfor,
+P81	connecting line	railway or public transport line(s) subject is directly connected to	railway line, rapid transit line, line connected to, rail line connected to,
+P812	academic major		
+P816	decays to	what isotope does this radioactive isotope decay to	
+P825	dedicated to	person or organization to whom the subject was dedicated	dedication,
+P826	tonality	key of a musical composition	musical key, key of musical composition,
+P828	has cause	underlying cause, thing that ultimately resulted in this effect	cause, has causes, has underlying cause, underlying cause, ultimate cause, ultimate causes, initial cause, effect of, outcome of, result of, has reason, reason, caused by,
+P837	day in year for periodic occurrence	when a specific holiday or periodic event occurs. Can be used as property or qualifier	day of periodic occurrence, day in year, day, date, recurring event, periodic occurrence,
+P84	architect	person or architectural firm that designed this building	
+P840	narrative location	the narrative of the work is set in this location	setting location, narrative set in,
+P841	feast day	saint's principal feast day	
+P85	anthem	name of the subject's anthem	national anthem,
+P859	sponsor	enterprise or individual that sponsors this item	funded by, funder,
+P86	composer	person(s) who wrote the music; also use P676 for lyricist	songwriter, composed by, musical score by, music by,
+P870	instrumentation	combination of musical instruments employed in a composition	
+P88	commissioned by	person or organization that commissioned this work	client, commissioner, made for, built for,
+P880	CPU	central processing unit found within the subject item	central processing unit,
+P9	sister	subject has the object as their sister (female sibling)	has sister, sibling,
+P915	filming location	actual place where this scene/film was shot	location of filming, location where filmed, studio where filmed, place of filming, place where filmed, recorded at,
+P921	main subject	primary topic of a work	index term, topic of work, main topic, aboutness, about, topic, subject, subject heading, subject of, mainly about,
+P931	place served by airport	city or region served by this airport	serves city, city served,
+P937	work location	location where persons were active	workplace, work location, place of activity, active in,
+P941	inspired by	work, human, or event which inspired this creative work	source of inspiration, inspiration,
+P97	noble title	titles held by the person	peerage, title (hereditary), hereditary title, royal title,
+P972	catalog	catalog for the item, or, as a qualifier of P528 â€“ catalog for which the 'catalog code' is valid	catalogue, registry,
+P974	tributary	stream or river that flows into this main stem (or parent) river or a lake	
+P98	editor	editor of a compiled work such as a book or academic journal	compiler, edited by, compiled by,
+P991	successful candidate	person(s) elected after the election	elected person,

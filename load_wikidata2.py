@@ -1,44 +1,41 @@
 import json, codecs, random, pickle, traceback, logging, os, math
 
-def load_wikidata():
-    with codecs.open('/dccstor/cssblr/vardaan/dialog-qa/wikidata_short_1.json','r','utf-8') as data_file:
+def load_wikidata(wikidata_dir):
+    with codecs.open(wikidata_dir+'/wikidata_short_1.json','r','utf-8') as data_file:
         wikidata = json.load(data_file)
     print 'Successfully loaded wikidata1'
 
-    with codecs.open('/dccstor/cssblr/vardaan/dialog-qa/wikidata_short_2.json','r','utf-8') as data_file:
+    with codecs.open(wikidata_dir+'/wikidata_short_2.json','r','utf-8') as data_file:
         wikidata2 = json.load(data_file)
     print 'Successfully loaded wikidata2'
 
     wikidata.update(wikidata2)
     del wikidata2
 
-    with codecs.open('/dccstor/cssblr/vardaan/dialog-qa/items_wikidata_n.json','r','utf-8') as data_file:
+    with codecs.open(wikidata_dir+'/items_wikidata_n.json','r','utf-8') as data_file:
         item_data = json.load(data_file)
     print 'Successfully loaded items json'
 
-    with codecs.open('/dccstor/cssblr/vardaan/dialog-qa/comp_wikidata_rev.json','r','utf-8') as data_file:
+    with codecs.open(wikidata_dir+'/comp_wikidata_rev.json','r','utf-8') as data_file:
         reverse_dict = json.load(data_file)
     print 'Successfully loaded reverse_dict json'
 
-    with codecs.open('/dccstor/cssblr/vardaan/dialog-qa/wikidata_fanout_dict.json','r','utf-8') as data_file:
+    with codecs.open(wikidata_dir+'/wikidata_fanout_dict.json','r','utf-8') as data_file:
         wikidata_fanout_dict = json.load(data_file)
     print 'Successfully loaded wikidata_fanout_dict json'
 
-    # wikidata_fanout_dict_list = pickle.load(open('/dccstor/cssblr/vardaan/dialog-qa/wikidata_fanout_dict_list.pickle', 'rb'))
-    # print 'Successfully loaded wikidata_fanout_dict_list pickle'
-
-    with codecs.open('/dccstor/cssblr/vardaan/dialog-qa/child_par_dict_save.json','r','utf-8') as data_file:
+    with codecs.open(wikidata_dir+'/child_par_dict_save.json','r','utf-8') as data_file:
         child_par_dict = json.load(data_file)
     print 'Successfully loaded child_par_dict json'
 
-    with codecs.open('/dccstor/cssblr/vardaan/dialog-qa/child_all_parents_till_5_levels.json','r','utf-8') as data_file:
+    with codecs.open(wikidata_dir+'/child_all_parents_till_5_levels.json','r','utf-8') as data_file:
 	child_all_parents_dict = json.load(data_file)
     print 'Successfully loaded child_all_parents_dict json'
 
-    with codecs.open('/dccstor/cssblr/vardaan/dialog-qa/filtered_property_wikidata4.json','r','utf-8') as data_file:
+    with codecs.open(wikidata_dir+'/filtered_property_wikidata4.json','r','utf-8') as data_file:
         prop_data = json.load(data_file)
 
-    with codecs.open('/dccstor/cssblr/vardaan/dialog-qa/par_child_dict.json','r','utf-8') as f1:
+    with codecs.open(wikidata_dir+'/par_child_dict.json','r','utf-8') as f1:
 	    par_child_dict = json.load(f1)
 
     wikidata_remove_list = [q for q in wikidata if q not in item_data]
@@ -52,7 +49,7 @@ def load_wikidata():
     for q in wikidata_remove_list:
         wikidata.pop(q,None)
 
-    with codecs.open('/dccstor/cssblr/vardaan/dialog-qa/child_par_dict_immed.json','r','utf-8') as data_file:
+    with codecs.open(wikidata_dir+'/child_par_dict_immed.json','r','utf-8') as data_file:
     	child_par_dict_immed = json.load(data_file)
     #************************ FIX for wierd parent types (wikimedia, metaclass etc.)********************************
     stop_par_list = ['Q21025364', 'Q19361238', 'Q21027609', 'Q20088085', 'Q15184295', 'Q11266439', 'Q17362920', 'Q19798645', 'Q26884324', 'Q14204246', 'Q13406463', 'Q14827288', 'Q4167410', 'Q21484471', 'Q17442446', 'Q4167836', 'Q19478619', 'Q24017414', 'Q19361238', 'Q24027526', 'Q15831596', 'Q24027474', 'Q23958852', 'Q24017465', 'Q24027515', 'Q1924819']

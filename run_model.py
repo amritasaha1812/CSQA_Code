@@ -17,7 +17,6 @@ from hierarchy_model import *
 import gensim
 import unidecode
 
-wikidata_id_name_map=json.load(open('/dccstor/cssblr/vardaan/dialog-qa/item_data_filt.json'))
 def feeding_dict(model, mem_size, inputs_w2v, inputs_kb, orig_target, target, decoder_target, text_weights, mem_weights, decoder_inputs, sources, rel, key_target, feed_prev, ent_embedding, rel_embedding):
     feed_dict = {}
     feed_dict[model.memory_size] = mem_size
@@ -45,26 +44,8 @@ def feeding_dict(model, mem_size, inputs_w2v, inputs_kb, orig_target, target, de
 
     for model_decoder_input_i, decoder_input_i in zip(model.decoder_text_inputs, decoder_inputs):
 	feed_dict[model_decoder_input_i] = decoder_input_i
-
-    #for model_source, source in zip(model.sources, sources):
-    #    feed_dict[model_source] = source
-
-    #for model_source_emb, source in zip(model.sources_emb, sources):
-    #    feed_dict[model_source_emb] = np.array([ent_embedding[i] for i in source], dtype=np.float32)
     feed_dict[model.sources_emb] = np.array([np.array([ent_embedding[i] for i in source]) for source in sources])
-
-    #for model_rel, relation in zip(model.rel, rel):
-    #    feed_dict[model_rel] = relation
-	
-    #for model_rel_emb, rel in zip(model.rel_emb, rel):
-    #	feed_dict[model_rel_emb] = np.array([rel_embedding[i] for i in rel], dtype=np.float32)
     feed_dict[model.rel_emb] = np.array([np.array([rel_embedding[i] for i in rel_i]) for rel_i in rel])
- 
-    #for model_key_target, key_target_i in zip(model.key_target, key_target):
-    #    feed_dict[model_key_target] = key_target_i
-
-    #for model_target_emb, key_target_i in zip(model.key_target_emb, key_target):
-    #    feed_dict[model_target_emb] = np.array([ent_embedding[i] for i in key_target_i], dtype=np.float32)
     feed_dict[model.key_target_emb] = np.array([np.array([ent_embedding[i] for i in key_target_i]) for key_target_i in key_target])
  
     for model_gold_emb, orig_target_i in zip(model.gold_emb, orig_target):
@@ -168,18 +149,18 @@ def run_training(param):
         sum_batch_loss = get_sum_batch_loss(batch_train_loss)
         return sum_batch_loss
 
-    def perform_evaluation(model, batch_dict, batch_target_word_ids, batch_text_targets, epoch, step, vocab, ent_embedding, rel_embedding, id_entity_map, type_of_loss):
+    def perform_evaluation(model, batch_dict, batch_target_word_ids, batch_text_targets, epoch, step, vocab, ent_embedding, rel_embedding, id_entity_map, type_of_loss, wikidata_id_name_map):
 	if type_of_loss == "decoder":
 		batch_valid_loss, valid_op, batch_orig_response = get_valid_loss(model, batch_dict, ent_embedding, rel_embedding, id_entity_map, type_of_loss)
 		batch_predicted_sentence, prob_predicted_words, prob_true_words = get_predicted_sentence(valid_op, batch_target_word_ids, vocab)	
 		print_pred_true_op_decoder(batch_predicted_sentence, prob_predicted_words, prob_true_words, batch_text_targets, step, epoch, batch_valid_loss)
 	elif type_of_loss == "kvmem":
 		batch_valid_loss, prob_mem_entries, prob_mem_scores, gold_entity_ids, gold_orig_response = get_valid_loss(model, batch_dict, ent_embedding, rel_embedding, id_entity_map, type_of_loss)
-		print_pred_true_op_kvmem(prob_mem_entries, prob_mem_scores, gold_entity_ids, gold_orig_response, step, epoch, batch_valid_loss)
+		print_pred_true_op_kvmem(prob_mem_entries, prob_mem_scores, gold_entity_ids, gold_orig_response, step, epoch, batch_valid_loss, wikidata_id_name_map)
         sum_batch_loss = get_sum_batch_loss(batch_valid_loss)
         return sum_batch_loss
 
-    def evaluate(model, epoch, step, valid_data, valid_text_targets, vocab, ent_embedding, rel_embedding, id_entity_map, loss_type):
+    def evaluate(model, epoch, step, valid_data, valid_text_targets, vocab, ent_embedding, rel_embedding, id_entity_map, loss_type, wikidata_id_name_map):
         print 'Validation started'
         sys.stdout.flush()
         valid_loss = 0.
@@ -189,7 +170,7 @@ def run_training(param):
             batch_dict = valid_data[i*param['batch_size']:(i+1)*param['batch_size']]
             batch_target_word_ids = valid_text_targets[i*param['batch_size']:(i+1)*param['batch_size']]
             batch_target_sentences = map_id_to_word(batch_target_word_ids, vocab)
-            sum_batch_loss = perform_evaluation(model, batch_dict, batch_target_word_ids, batch_target_sentences, epoch, step, vocab, ent_embedding, rel_embedding, id_entity_map, loss_type)
+            sum_batch_loss = perform_evaluation(model, batch_dict, batch_target_word_ids, batch_target_sentences, epoch, step, vocab, ent_embedding, rel_embedding, id_entity_map, loss_type, wikidata_id_name_map)
             valid_loss = valid_loss + sum_batch_loss
         return float(valid_loss)/float(len(valid_data))
 
@@ -211,7 +192,7 @@ def run_training(param):
             print prob_true[i]
 	    print "loss for the pair", str(batch_valid_loss[i])
 
-    def print_pred_true_op_kvmem(prob_memory_entities, prob_memory_scores, gold_entity_ids, gold_orig_response, step, epoch, batch_valid_loss):	
+    def print_pred_true_op_kvmem(prob_memory_entities, prob_memory_scores, gold_entity_ids, gold_orig_response, step, epoch, batch_valid_loss, wikidata_id_name_map):	
 	for i in random.sample(xrange(len(gold_orig_response)),5):
 	    if i==len(gold_orig_response):
 		continue
@@ -267,7 +248,6 @@ def run_training(param):
                 true_op_prob = np.transpose(true_op_prob)
                 if true_op_prob.shape[0]!=max_probs.shape[0] and true_op_prob.shape[1]!=max_probs.shape[1]:
                         raise Exception('some problem shape of true_op_prob' , true_op_prob.shape)
-    #max_probs is of shape batch_size, max_len
         pred_sentence_list = map_id_to_word(max_probs_index, vocab)
         return pred_sentence_list, max_probs, true_op_prob
 
@@ -277,8 +257,6 @@ def run_training(param):
     else:
 	training_files = param['train_data_file']
 	random.shuffle(training_files)	
-    #for file in training_files:
-    #	train_data.extend(pkl.load(open(file)))
     print 'Train dialogue dataset loaded'
     sys.stdout.flush()
     valid_data =[]
@@ -301,15 +279,17 @@ def run_training(param):
     f_out = open(param['terminal_op'],'w')
     sys.stdout=f_out
     check_dir(param)
+    wikidata_dir = param['wikidata_dir']
+    lucene_dir = param['lucene_dir']
+    transe_dir = param['transe_dir']
+    glove_dir = param['glove_dir']
     model_file = os.path.join(param['model_path'],"best_model")
-
+    wikidata_id_name_map=json.load(open(wikidata_dir+'/items_wikidata_n.json'))
     vocab_init_embed = np.empty([len(vocab.keys()), param['text_embedding_size']],dtype=np.float32)
-    #word2vec_pretrain_embed = gensim.models.KeyedVectors.load_word2vec_format('/dccstor/anirlaha1/data/GoogleNews-vectors-negative300.bin', binary=True)
-    word2vec_pretrain_embed = gensim.models.Word2Vec.load_word2vec_format('/dccstor/anirlaha1/data/GoogleNews-vectors-negative300.bin', binary=True)
-    # word2vec_pretrain_embed = {} # to be removed later
+    word2vec_pretrain_embed = gensim.models.Word2Vec.load_word2vec_format(glove_dir, binary=True)
 
-    ent_embed = np.load('/dccstor/cssblr/vardaan/projE-wikidata/ProjE/ent_embed.pkl.npy')
-    rel_embed = np.load('/dccstor/cssblr/vardaan/projE-wikidata/ProjE/rel_embed.pkl.npy')
+    ent_embed = np.load(transe_dir+'/ent_embed.pkl.npy')
+    rel_embed = np.load(transe_dir+'/rel_embed.pkl.npy')
 
     new_row = np.zeros((1,param['wikidata_embed_size']), dtype=np.float32)
     
@@ -331,7 +311,7 @@ def run_training(param):
             #vocab_init_embed[i,:] = np.random.rand(1,vocab_init_embed.shape[1])
    
     id_entity_map = {0:'<pad_kb>', 1: '<nkb>'}
-    id_entity_map.update({(k+2):v for k,v in pkl.load(open('/dccstor/cssblr/vardaan/projE-wikidata/ProjE/id_entity_map.pickle','rb')).iteritems()}) 
+    id_entity_map.update({(k+2):v for k,v in pkl.load(open(wikidata_dir+'/id_entity_map.pickle','rb')).iteritems()}) 
     type_of_loss = ""
     if 'type_of_loss' in param:
 	type_of_loss=param['type_of_loss']
@@ -391,7 +371,7 @@ def run_training(param):
                 train_loss = train_loss + sum_batch_loss
                 avg_train_loss = float(train_loss)/float(i+1)
                 if overall_step_count > 0 and overall_step_count%param['valid_freq']==0:
-                    overall_avg_valid_loss = evaluate(model, epoch, i, valid_data, valid_text_targets, response_vocab, ent_embed, rel_embed, id_entity_map, type_of_loss)
+                    overall_avg_valid_loss = evaluate(model, epoch, i, valid_data, valid_text_targets, response_vocab, ent_embed, rel_embed, id_entity_map, type_of_loss, wikidata_id_name_map)
                     print ('Epoch %d Step %d ... overall avg valid loss= %.6f ' %(epoch, i, overall_avg_valid_loss))
                     sys.stdout.flush()
                     if best_valid_loss>overall_avg_valid_loss:

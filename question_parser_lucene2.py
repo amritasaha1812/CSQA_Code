@@ -177,17 +177,8 @@ class QuestionParser(object):
     self.stop_set = stop_set
     self.bad_qids = bad_qids	
     self.item_wikidata = {k:self.clean_string(v) for k,v in item_wikidata.items()}
-    '''	
-    self.stop_set = set([x.lower() for x in self.stop_vocab.keys()])		
-    self.stop_set.update(stopwords)
-    with open('/dccstor/cssblr/vardaan/dialog-qa/dict_val/all_template_words.txt') as fr:
-	self.stop_set.update([x.strip().lower() for x in fr.readlines()])		
-    self.stop_set.update(pkl.load(open('/dccstor/cssblr/vardaan/dialog-qa/all_parent_names.pkl')))	
-    '''
     self.ls = ls
     self.all_possible_ngrams = all_possible_ngrams
-    #with codecs.open('/dccstor/cssblr/vardaan/dialog-qa/wikidata_fanout_dict.json','r','utf-8') as data_file:
-    #  self.wikidata_fanout_dict = json.load(data_file)
     print 'Successfully loaded wikidata_fanout_dict json'
 
   def remove_all_stopwords_except_one(self, qn_entities):
