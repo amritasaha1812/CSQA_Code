@@ -1,6 +1,7 @@
 check_missing_memory.py
 check_mem_preselection_failures.py
 transe_dir/*
+lucene_dir/*
 browse.py
 *.pyc
 hierarchy_model_old.py*

@@ -197,24 +197,3 @@ class LuceneSearch():
 				
 			print ''
 		print '-------------------------------------\n'
-
-if __name__=="__main__":
-	ls = LuceneSearch('/dccstor/cssblr/amrita/dialog_qa/code/prepro_lucene/lucene_index_3m/')
-	#for line in open('phrases_to_test_lucene.txt').readlines():
-	#	line = line.strip()
-	line = "USS Mackinaw"#Adson tissue"#the royal family"
-	ques = line
-	print ls.more_relaxed_search(line, ques)
-	'''
-	line = "Q37470"
-	ls.printDocs(ls.qid_search(line))
-	d=json.load(codecs.open('/dccstor/cssblr/vardaan/dialog-qa/QA_train_final5/train/QA_1/QA_67.json', encoding='utf-8'))
-	line = [di['utterance'] for di in d if 'Loyasse' in di['utterance']][0].lower()
-	try:
-                line = unidecode.unidecode(line)
-        except:
-                line = unicodedata.normalize('NFKD', line).encode('ascii','ignore')
-	print line	
-	ls.printDocs(ls.relaxed_search(line, line))
-	#	break
-	'''

@@ -19,10 +19,6 @@ import unidecode
 from collections import OrderedDict
 import re
 
-#ann = AnnoyIndex(256)
-#ann.load('/dccstor/cssblr/amrita/dialog_qa/code/annoy_wikidata_entities.ann')
-wikidata_id_name_map=json.load(open('/dccstor/cssblr/vardaan/dialog-qa/item_data_filt.json'))
-wikidata_rel_id_name_map=json.load(open('/dccstor/cssblr/vardaan/dialog-qa/filtered_property_wikidata4.json'))
 
 def feeding_dict(model, mem_size, inputs_w2v, inputs_kb, decoder_target, text_weights, mem_weights, decoder_inputs, sources, rel, key_target, feed_prev, ent_embedding, rel_embedding, batch_size):
     feed_dict = {}
@@ -51,32 +47,9 @@ def feeding_dict(model, mem_size, inputs_w2v, inputs_kb, decoder_target, text_we
 
     for model_decoder_input_i, decoder_input_i in zip(model.decoder_text_inputs, decoder_inputs):
         feed_dict[model_decoder_input_i] = decoder_input_i
-
-    #for model_source, source in zip(model.sources, sources):
-    #    feed_dict[model_source] = source
-
-    #for model_source_emb, source in zip(model.sources_emb, sources):
-    #    feed_dict[model_source_emb] = np.array([ent_embedding[i] for i in source], dtype=np.float32)
     feed_dict[model.sources_emb] = np.array([np.array([ent_embedding[i] for i in source]) for source in sources])
-	
-    #for model_rel, relation in zip(model.rel, rel):
-    #    feed_dict[model_rel] = relation
     feed_dict[model.rel_emb] = np.array([np.array([rel_embedding[i] for i in rel_i]) for rel_i in rel])	
-
-    #for model_key_target, key_target_i in zip(model.key_target, key_target):
-    #    feed_dict[model_key_target] = key_target_i
-
-    #for model_key_target, key_target_i in zip(model.key_target_emb, key_target):
-    #    feed_dict[model_key_target] = np.array([ent_embedding[i] for i in key_target_i], dtype=np.float32)
- 
-    #for model_gold_emb, orig_target_i in zip(model.gold_emb, orig_target):
-    #    feed_dict[model_gold_emb] = np.array([ent_embedding[i] for i in orig_target_i], dtype=np.float32)
- 
     feed_dict[model.key_target_emb] = np.array([np.array([ent_embedding[i] for i in key_target_i]) for key_target_i in key_target])
-
-    #for model_gold_emb, orig_target_i in zip(model.gold_emb, orig_target):
-    #    feed_dict[model_gold_emb] = np.array([ent_embedding[i] for i in orig_target_i], dtype=np.float32)
-	
     feed_dict[model.feed_previous] = feed_prev
     return feed_dict
 
@@ -117,23 +90,21 @@ def run_testing(param):
                 prob_mem_entries = np.array(prob_mem_entries)
                 mem_entries_sorted = np.fliplr(np.argsort(prob_mem_entries,axis=1))
                 mem_attention_sorted = np.fliplr(np.sort(prob_mem_entries,axis=1))
-                #batch_inverse_mapped_target is of dimension batch_size * mem_size + 1, each entry being the global index
                 mem_entries_sorted = [[batch_key_target[j][i] for j in mem_entries_sorted[i]] for i in range(batch_key_target.shape[1])]
                 mem_entries_sorted = np.array(mem_entries_sorted, dtype=np.int32)
                 mem_entries_sorted = [[id_entity_map[mem_entries_sorted[i][j]] for j in range(mem_entries_sorted.shape[1])] for i in range(mem_entries_sorted.shape[0])]
                 gold_entity_ids = batch_orig_target
-                #gold_entity_ids = [[id_entity_map[gold_entity_ids[i][j]] for j in range(gold_entity_ids.shape[1])] for i in range(gold_entity_ids.shape[0])]
                 return output_loss, mem_entries_sorted, mem_attention_sorted, gold_entity_ids, batch_orig_response
 
 
-    def perform_test(model, batch_dict, vocab, ent_embedding, rel_embedding, id_entity_map, type_of_loss, step):
+    def perform_test(model, batch_dict, vocab, ent_embedding, rel_embedding, id_entity_map, type_of_loss, step, wikidata_id_name_map, wikidata_rel_id_name_map):
 	if type_of_loss == "decoder":
 		batch_test_loss, test_op, batch_target_word_ids, gold_orig_response = get_test_op(model, batch_dict, ent_embedding, rel_embedding, id_entity_map, type_of_loss)
 		batch_predicted_sentence, prob_predicted_words, prob_true_words = get_predicted_sentence(test_op, batch_target_word_ids, vocab)
 		print_pred_true_op_decoder(batch_predicted_sentence, gold_orig_response, batch_test_loss, step)
 	elif type_of_loss == "kvmem":
 		batch_test_loss, prob_mem_entries, prob_mem_scores, gold_entity_ids, gold_orig_response = get_test_op(model, batch_dict, ent_embedding, rel_embedding, id_entity_map, type_of_loss)
-		print_pred_true_op_kvmem(prob_mem_entries, prob_mem_scores, gold_entity_ids, gold_orig_response, batch_test_loss, step)
+		print_pred_true_op_kvmem(prob_mem_entries, prob_mem_scores, gold_entity_ids, gold_orig_response, batch_test_loss, step, wikidata_id_name_map, wikidata_rel_id_name_map)
         sum_batch_loss = get_sum_batch_loss(batch_test_loss)
         sys.stdout.flush()
         return sum_batch_loss
@@ -196,7 +167,7 @@ def run_testing(param):
 	f3.close()
 	f4.close()
 
-    def print_pred_true_op_kvmem(prob_memory_entities, prob_memory_scores, gold_entity_ids, gold_orig_response, batch_test_loss, step):
+    def print_pred_true_op_kvmem(prob_memory_entities, prob_memory_scores, gold_entity_ids, gold_orig_response, batch_test_loss, step, wikidata_id_name_map, wikidata_rel_id_name_map):
 	test_result_dir = param['test_output_dir']
 	top20_entid_from_mem_file = os.path.join(test_result_dir, 'top20_ent_id_from_mem.txt')
 	top20_entid_from_kb_file = os.path.join(test_result_dir, 'top20_ent_id_from_kb.txt')
@@ -269,7 +240,12 @@ def run_testing(param):
                 word_list.append(word)
             sentence_list.append(" ".join(word_list))
         return sentence_list
-    
+   
+    wikidata_dir = param['wikidata_dir']
+    transe_dir = param['transe_dir']
+    glove_dir = param['glove_dir']
+    wikidata_id_name_map=json.load(open(wikidata_dir+'/items_wikidata_n.json'))
+    wikidata_rel_id_name_map=json.load(open(wikidata_dir+'/filtered_property_wikidata4.json')) 
     test_data = pkl.load(open(param['test_data_file']))
     print 'Test dialogue dataset loaded'
     sys.stdout.flush()
@@ -277,7 +253,6 @@ def run_testing(param):
     vocab_size = len(vocab)
     response_vocab = pkl.load(open(param['response_vocab_file'],"rb"))
     response_vocab_size = len(response_vocab)	
-    #test_text_targets = load_valid_test_target(test_data)
     print 'test target sentence list loaded'
     check_dir(param)
     n_batches = int(math.ceil(float(len(test_data))/float(param['batch_size'])))
@@ -285,12 +260,9 @@ def run_testing(param):
     model_file = os.path.join(param['model_path'],"best_model")
 
     vocab_init_embed = np.empty([len(vocab.keys()), param['text_embedding_size']],dtype=np.float32)
-    #word2vec_pretrain_embed = gensim.models.KeyedVectors.load_word2vec_format('/dccstor/anirlaha1/data/GoogleNews-vectors-negative300.bin', binary=True)
-    word2vec_pretrain_embed = gensim.models.Word2Vec.load_word2vec_format('/dccstor/anirlaha1/data/GoogleNews-vectors-negative300.bin', binary=True)
-    # word2vec_pretrain_embed = {} # to be removed later
-
-    ent_embed = np.load('/dccstor/cssblr/vardaan/projE-wikidata/ProjE/ent_embed.pkl.npy')
-    rel_embed = np.load('/dccstor/cssblr/vardaan/projE-wikidata/ProjE/rel_embed.pkl.npy')
+    word2vec_pretrain_embed = gensim.models.Word2Vec.load_word2vec_format(glove_dir, binary=True)
+    ent_embed = np.load(transe_dir+'/ent_embed.pkl.npy')
+    rel_embed = np.load(transe_dir+'/rel_embed.pkl.npy')
 
     new_row = np.zeros((1,param['wikidata_embed_size']), dtype=np.float32)
     
@@ -299,23 +271,18 @@ def run_testing(param):
 
     rel_embed = np.vstack([new_row, rel_embed]) # corr. to <pad_kb>
     rel_embed = np.vstack([new_row, rel_embed]) # corr. to <nkb>
-    #ent_embed = numpy.vstack([ent_embed, newrow]) # extra entry in kb-vocab corr. to non-kb words
-
     for i in xrange(vocab_init_embed.shape[0]):
         if vocab[i] in word2vec_pretrain_embed:
             vocab_init_embed[i,:] = word2vec_pretrain_embed[vocab[i]]
         elif i == 4: # KB word
 	    vocab_init_embed[i,:] = np.zeros((1,vocab_init_embed.shape[1]),dtype=np.float32)
-            #vocab_init_embed[i,:] = np.zeros(1,vocab_init_embed.shape[1])
         else:
 	    vocab_init_embed[i,:] = np.random.rand(1,vocab_init_embed.shape[1]).astype(np.float32)
-            #vocab_init_embed[i,:] = np.random.rand(1,vocab_init_embed.shape[1])
-   
     id_entity_map = {0:'<pad_kb>', 1: '<nkb>'}
-    id_entity_map.update({(k+2):v for k,v in pkl.load(open('/dccstor/cssblr/vardaan/projE-wikidata/ProjE/id_entity_map.pickle','rb')).iteritems()})
+    id_entity_map.update({(k+2):v for k,v in pkl.load(open(transe_dir+'/id_entity_map.pickle','rb')).iteritems()})
 
     id_rel_map = {0:'<pad_kb>', 1: '<nkb>'}
-    id_rel_map.update({(k+2):v for k,v in pkl.load(open('/dccstor/cssblr/vardaan/projE-wikidata/ProjE/id_rel_map.pickle','rb')).iteritems()})
+    id_rel_map.update({(k+2):v for k,v in pkl.load(open(transe_dir+'/id_rel_map.pickle','rb')).iteritems()})
     if 'type_of_loss' in param:
 	type_of_loss = param['type_of_loss']
     else:
@@ -324,33 +291,22 @@ def run_testing(param):
         model = Hierarchical_seq_model(param['text_embedding_size'], param['wikidata_embed_size'], param['cell_size'], param['cell_type'], param['batch_size'], param['learning_rate'], param['max_len'], param['max_utter'], param['patience'], param['max_gradient_norm'], param['activation'], param['output_activation'],vocab_init_embed, ent_embed, rel_embed, param['gold_target_size'], response_vocab_size, type_of_loss)
         model.create_placeholder()
         losses, prob = model.inference()
-        # losses = model.loss_task_text(logits)
         print "model created"
         sys.stdout.flush()
         saver = tf.train.Saver()
         init = tf.initialize_all_variables()
         sess = tf.Session()
-        # if os.path.isfile(model_file):
-        #     print "best model exists.. restoring from that point"
         saver.restore(sess, model_file)
-        # else:
-        #     print model_file
-        #     raise Exception('Model file not found')
-
         all_var = tf.all_variables()
         print 'printing all' , len(all_var),' TF variables:'
         for var in all_var:
             print var.name, var.get_shape()
         print 'testing started'
         sys.stdout.flush()
-
-        # overall_avg_valid_loss = perform_test(model, test_data, test_text_targets, vocab, ent_embed, id_entity_map)
         test_loss = 0
         n_batches = int(math.ceil(float(len(test_data))/float(param['batch_size'])))
         for i in range(n_batches):
             batch_dict = test_data[i*param['batch_size']:(i+1)*param['batch_size']]
-            #batch_target_word_ids = test_text_targets[i*param['batch_size']:(i+1)*param['batch_size']]
-            #batch_target_sentences = map_id_to_word(batch_target_word_ids, vocab)
             sum_batch_loss = perform_test(model, batch_dict, response_vocab, ent_embed, rel_embed, id_entity_map, type_of_loss, i)
             test_loss = test_loss + sum_batch_loss
 

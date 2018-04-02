@@ -414,18 +414,12 @@ class QuestionParser(object):
     return qn_entities, '|'.join(out_utter_list)
 
 if __name__=="__main__":
-	stop_vocab = {}
-	with open('/dccstor/cssblr/vardaan/neural_kbqa_wikidata/data/movieqa/stopwords.txt') as input_file:
-	    reader = csv.DictReader(input_file, delimiter='\t', fieldnames=['col1', 'col2'])
-	    for row in reader:
-	      stop_vocab[row['col1']] = int(row['col2'])
-	stop_set = set([x.lower().strip() for x in stop_vocab.keys()])
-        stop_set.update([x.lower().strip() for x in stopwords])
-        stop_set.update(pkl.load(open('/dccstor/cssblr/vardaan/dialog-qa/all_parent_names.pkl')))
+        stop_set = pkl.load(open('stopwords.pkl'))
+        stop_vocab = read_file_as_dict('stopwords_histogram.txt')
 	bad_qids = set(['Q184386','Q1541554','Q540955','Q2620241','Q742391'])  #adding Yes/No
         bad_qids.update(pkl.load(open('wikidata_entities_with_digitnames.pkl')))
 	context = "which is the council of the united nations security council ?"
-	ls = LuceneSearch('/dccstor/cssblr/amrita/dialog_qa/code/prepro_lucene/lucene_index_new3')
+	ls = LuceneSearch('lucene_dir')
         question_parser = QuestionParser(None, stop_vocab, stop_set, bad_qids, ls, True)
 	print 'In get_utterance_entities '
         ques_entities, context_list = question_parser.get_utterance_entities(context, True)
