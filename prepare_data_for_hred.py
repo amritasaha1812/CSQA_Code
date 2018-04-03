@@ -99,7 +99,7 @@ class PrepareData():
         self.kb_ov_idx = 1 # symbol assigned to entries out of kb or for padding to target_ids
         self.kb_rel_ov_idx = 1 # symbol assigned to entries out of kb or for padding to target_ids
 
-	glove_model = gensim.models.KeyedVectors.load_word2vec_format(glove_dir, binary=True)#/dccstor/cssblr/amrita/resources/glove/GoogleNews-vectors-negative300.bin', binary=True)
+	glove_model = gensim.models.KeyedVectors.load_word2vec_format(glove_dir+'/GoogleNews-vectors-negative300.bin', binary=True)#/dccstor/cssblr/amrita/resources/glove/GoogleNews-vectors-negative300.bin', binary=True)
         vocab = glove_model.wv.vocab.keys()
         self.glove_embedding = {v:glove_model.wv[v] for v in vocab}
         print 'loaded glove embeddings'

@@ -260,7 +260,7 @@ def run_testing(param):
     model_file = os.path.join(param['model_path'],"best_model")
 
     vocab_init_embed = np.empty([len(vocab.keys()), param['text_embedding_size']],dtype=np.float32)
-    word2vec_pretrain_embed = gensim.models.Word2Vec.load_word2vec_format(glove_dir, binary=True)
+    word2vec_pretrain_embed = gensim.models.Word2Vec.load_word2vec_format(glove_dir+'/GoogleNews-vectors-negative300.bin', binary=True)
     ent_embed = np.load(transe_dir+'/ent_embed.pkl.npy')
     rel_embed = np.load(transe_dir+'/rel_embed.pkl.npy')
 
