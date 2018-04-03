@@ -155,7 +155,7 @@ class PrepareData():
         if create_vocab or not os.path.exists(dialogue_pkl_file):
             self.binarize_corpus(self.dialogue_context_file, self.dialogue_target_file, self.dialogue_response_file, self.dialogue_orig_response_file, self.active_set_file, self.sources_file, self.relation_file, self.target_file, dialogue_pkl_file)
         
-    def read_jsondir(self, json_dir, create_vocab=False, ques_type_id = -1):
+    def read_jsondir(self, json_dir, create_vocab=False, ques_type_id = "None"):
         if os.path.isfile(self.dialogue_context_file):
             os.remove(self.dialogue_context_file)
         if os.path.isfile(self.dialogue_target_file):
@@ -250,7 +250,7 @@ class PrepareData():
             return False
         return True 
 
-    def read_jsonfile(self, json_file, create_vocab, ques_type_id = -1):
+    def read_jsonfile(self, json_file, create_vocab, ques_type_id = "None"):
         #print 'json filename: %s' % json_file
         try:
             dialogue = json.load(codecs.open(json_file,'r','utf-8'))
@@ -316,7 +316,9 @@ class PrepareData():
 		_, context_list = self.question_parser.get_utterance_entities(nlg)
                 self.word_counter.update([x for x in nltk.word_tokenize(context_list) if not self.isQid(x)]) # update vocab for non-Qid words
             is_ques_relevant = False
-	    
+            if speaker=="SYSTEM" and (ques_type_id=="None" or ques_type_id == dialogue[utter_id-1]['question-type']):
+		is_ques_relevant = True
+	    '''	 
             if ques_type_id == 16:
                 if speaker=="SYSTEM" and 'ques_type_id' in dialogue[utter_id-1] and ('count_ques_sub_type' in dialogue[utter_id-1] and ((dialogue[utter_id-1]['ques_type_id'] == 7 and dialogue[utter_id-1]['count_ques_sub_type'] in [2,3]) or (dialogue[utter_id-1]['ques_type_id'] == 8 and dialogue[utter_id-1]['count_ques_sub_type'] in [3,4])) and ('active_set' in utterance)):
                     is_ques_relevant = True
@@ -345,8 +347,9 @@ class PrepareData():
                     is_ques_relevant = True
                 # print 'flag 0'
                 # last_utterance = dialogue_instance[-1]
+	    '''
             if is_ques_relevant:
-		if ques_type_id < 0 and 'active_set' not in utterance:
+		if ques_type_id == "None" and 'active_set' not in utterance:
 			utterance['active_set'] = ''
                 if 'active_set' not in utterance:
 		    active_set = ''

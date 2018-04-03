@@ -46,7 +46,7 @@ def get_dialog_dict(param):
     #preparedata.prepare_data(test_dir_loc, vocab_file, vocab_stats_file, os.path.join(dump_dir_loc, "test"), test_data_file, ques_type_id)
 
 
-def get_dialog_dict_for_test(param, test_type):
+def get_dialog_dict_for_test(param):
     test_dir_loc = param['test_dir_loc']
     dump_dir_loc = param['dump_dir_loc']
     vocab_file = param['vocab_file']
@@ -71,7 +71,7 @@ def get_dialog_dict_for_test(param, test_type):
     if os.path.isfile(vocab_file):
         print 'found existing vocab file in '+str(vocab_file)+', ... reading from there'
     print 'to delete later ',os.path.join(dump_dir_loc, "train")
-    preparedata.prepare_data(test_dir_loc, vocab_file, vocab_stats_file, response_vocab_file, os.path.join(dump_dir_loc, "test_"+test_type), test_data_file, ques_type_id)
+    preparedata.prepare_data(test_dir_loc, vocab_file, vocab_stats_file, response_vocab_file, os.path.join(dump_dir_loc, "test_"), test_data_file, ques_type_id)
 
 
 
