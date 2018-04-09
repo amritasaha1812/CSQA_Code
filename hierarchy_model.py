@@ -161,6 +161,8 @@ class Hierarchical_seq_model():
             dotted = tf.reduce_sum(prod, 2) # batch_size * size_memory
 	    #probs = tf.nn.softmax(tf.multiply(dotted, self.mem_weights))
 	    #probs = tf.nn.softmax(tf.multiply(dotted, self.mem_weights))
+            probs = tf.nn.softmax(tf.multiply(dotted, self.mem_weights))
+	    '''
             probs = tf.nn.softmax(dotted)
             probs = tf.multiply(probs, self.mem_weights)
 	    num = len(probs.get_shape())
@@ -169,7 +171,7 @@ class Hierarchical_seq_model():
 	    probs = tf.where(tf.equal(stacked_norm, 0.), tf.ones_like(probs), probs)
             new_l1norm = tf.reduce_sum(probs, axis=1)
 	    probs = probs/tf.reshape(new_l1norm, (-1,1))
-	    
+	    '''
 	    values_emb = tf.pack(self.key_target_emb, axis=0)
 	    values_emb = tf.transpose(values_emb, perm=[1,0,2])
             
