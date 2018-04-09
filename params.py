@@ -14,8 +14,8 @@ def get_params(dir):
     param['dump_dir_loc']=dir+"/dump/"
     param['test_output_dir']=dir+"/test_output/"
     param['vocab_file']=dir+"/vocab.pkl"
-    param['train_data_file']=[dir+"/dump/"+x for x in os.listdir(dir+"/dump") if x.startswith('train_data_file')]
-    param['valid_data_file']=[dir+"/dump/"+x for x in os.listdir(dir+"/dump") if x.startswith('valid_data_file')]
+    param['train_data_file']=[dir+"/dump/"+x for x in os.listdir(dir+"/dump") if x.startswith('train_')]
+    param['valid_data_file']=[dir+"/dump/"+x for x in os.listdir(dir+"/dump") if x.startswith('valid_')]
     param['test_data_file']=dir+"/dump/test_data_file.pkl"
     param['vocab_file']=dir+"/vocab.pkl"
     param['response_vocab_file']=dir+"/response_vocab.pkl"

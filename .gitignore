@@ -14,9 +14,11 @@ run_test_twostep_old.*
 run_model_old.py*
 run_old.sh*
 copy/*
+new_model_softmax_kvmem/*
 model_softmax_kvmem/*
 obsolete/*
 model_softmax_decoder/*
+new_model_softmax_decoder/*
 model_softmax_test/*
 to_delete.sh
 knowledge_graph.py*

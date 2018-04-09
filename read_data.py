@@ -258,5 +258,6 @@ def check_padding(batch_enc_w2v, batch_enc_kb, batch_target, batch_response, bat
     return batch_enc_w2v, batch_enc_kb, batch_target, batch_response, batch_response_length, batch_orig_response, batch_sources, batch_rel, batch_key_target, batch_active_set
 
 
-
+def load_valid_test_target(data_dict):
+    return np.asarray(data_dict)[:,3]
 
