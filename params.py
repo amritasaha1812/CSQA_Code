@@ -23,7 +23,7 @@ def get_params(dir):
     param['model_path']=dir+"/model"
     param['terminal_op']=dir+"/terminal_output.txt"
     param['logs_path']=dir+"/log"
-    param['type_of_loss']="kvmem"
+    param['type_of_loss']="decoder"
     param['text_embedding_size'] = 300
     param['activation'] = None #tf.tanh
     param['output_activation'] = None #tf.nn.softmax

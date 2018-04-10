@@ -26,7 +26,6 @@ def get_dialog_dict(param):
     test_data_file = param['test_data_file']
     max_utter = param['max_utter']
     max_len = param['max_len']
-    input_graph = param['input_graph']
     stopwords = param['stopwords']
     stopwords_histogram = param['stopwords_histogram']
     max_mem_size = param['memory_size']
