@@ -70,7 +70,7 @@ class PrepareData():
         self.stemmer = nltk.stem.porter.PorterStemmer()
         self.bad_qids = set(['Q184386','Q1541554','Q540955','Q2620241','Q742391'])  #adding Yes/No
         self.bad_qids.update(pkl.load(open('wikidata_entities_with_digitnames.pkl')))
-        self.wikidata_qid_to_name = json.load(open(wikidata_dir+'/items_wikidata_.json'))
+        self.wikidata_qid_to_name = json.load(open(wikidata_dir+'/items_wikidata_n.json'))
 	#Taken from Su Nam Kim Paper...
         self.grammar = r"""
             NBAR:
