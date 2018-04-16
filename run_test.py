@@ -13,7 +13,7 @@ import numpy as np
 from params_test import *
 import nltk
 from read_data import *
-from hierarchy_model import Hierarchical_seq_model
+#from hierarchy_model import Hierarchical_seq_model
 import gensim
 import unidecode
 from collections import OrderedDict
@@ -79,22 +79,25 @@ def run_testing(param):
                 overriding_memory = 10
         else:
                 overriding_memory = None
-        memory_size, test_batch_enc_w2v, test_batch_enc_kb, batch_target, batch_orig_target, batch_response, batch_orig_response, batch_text_weight, batch_mem_weight, batch_decoder_input, batch_sources, batch_rel, batch_key_target, batch_active_set = get_batch_data(param['max_len'], param['max_utter'], param['memory_size'], param['gold_target_size'], param['batch_size'], batch_dict, overriding_memory, is_test=True)
+        memory_size, test_batch_enc_w2v, test_batch_enc_kb, batch_target, batch_orig_target, batch_response, batch_orig_response, batch_text_weight, batch_mem_weight, batch_decoder_input, batch_sources, batch_rel, batch_key_target, batch_active_set, batch_orig_response_entities = get_batch_data(param['max_len'], param['max_utter'], param['memory_size'], param['gold_target_size'], param['batch_size'], batch_dict, overriding_memory, is_test=True)
         feed_dict = feeding_dict(model, memory_size, test_batch_enc_w2v, test_batch_enc_kb, batch_response, batch_text_weight, batch_mem_weight, batch_decoder_input, batch_sources, batch_rel, batch_key_target, True, ent_embedding, rel_embedding, param['batch_size'])
 	if type_of_loss == "decoder":
 		output_loss, output_prob = sess.run([losses, prob], feed_dict=feed_dict)
 		return output_loss, output_prob, np.transpose(batch_response, (1,0)), batch_orig_response
 	elif type_of_loss == "kvmem":
 		output_loss, output_prob = sess.run([losses, prob], feed_dict=feed_dict)
+		print 'output-prob ' ,output_prob
 		prob_mem_entries = output_prob
                 prob_mem_entries = np.array(prob_mem_entries)
                 mem_entries_sorted = np.fliplr(np.argsort(prob_mem_entries,axis=1))
                 mem_attention_sorted = np.fliplr(np.sort(prob_mem_entries,axis=1))
                 mem_entries_sorted = [[batch_key_target[j][i] for j in mem_entries_sorted[i]] for i in range(batch_key_target.shape[1])]
                 mem_entries_sorted = np.array(mem_entries_sorted, dtype=np.int32)
+		print 'mem_entries_sorted before ', mem_entries_sorted
                 mem_entries_sorted = [[id_entity_map[mem_entries_sorted[i][j]] for j in range(mem_entries_sorted.shape[1])] for i in range(mem_entries_sorted.shape[0])]
+		print 'mem_entries_sorted after ',mem_entries_sorted
                 gold_entity_ids = batch_orig_target
-                return output_loss, mem_entries_sorted, mem_attention_sorted, gold_entity_ids, batch_orig_response
+                return output_loss, mem_entries_sorted, mem_attention_sorted, gold_entity_ids, batch_orig_response, batch_orig_response_entities
 
 
     def perform_test(model, batch_dict, vocab, ent_embedding, rel_embedding, id_entity_map, type_of_loss, step, wikidata_id_name_map, wikidata_rel_id_name_map):
@@ -103,8 +106,9 @@ def run_testing(param):
 		batch_predicted_sentence, prob_predicted_words, prob_true_words = get_predicted_sentence(test_op, batch_target_word_ids, vocab)
 		print_pred_true_op_decoder(batch_predicted_sentence, gold_orig_response, batch_test_loss, step)
 	elif type_of_loss == "kvmem":
-		batch_test_loss, prob_mem_entries, prob_mem_scores, gold_entity_ids, gold_orig_response = get_test_op(model, batch_dict, ent_embedding, rel_embedding, id_entity_map, type_of_loss)
-		print_pred_true_op_kvmem(prob_mem_entries, prob_mem_scores, gold_entity_ids, gold_orig_response, batch_test_loss, step, wikidata_id_name_map, wikidata_rel_id_name_map)
+		batch_test_loss, prob_mem_entries, prob_mem_scores, gold_entity_ids, gold_orig_response, gold_orig_response_entities = get_test_op(model, batch_dict, ent_embedding, rel_embedding, id_entity_map, type_of_loss)
+		gold_orig_response_entities = '|'.join(gold_orig_response_entities)
+		print_pred_true_op_kvmem(prob_mem_entries, prob_mem_scores, gold_entity_ids, gold_orig_response, gold_orig_response_entities, batch_test_loss, step, wikidata_id_name_map, wikidata_rel_id_name_map)
         sum_batch_loss = get_sum_batch_loss(batch_test_loss)
         sys.stdout.flush()
         return sum_batch_loss
@@ -167,7 +171,7 @@ def run_testing(param):
 	f3.close()
 	f4.close()
 
-    def print_pred_true_op_kvmem(prob_memory_entities, prob_memory_scores, gold_entity_ids, gold_orig_response, batch_test_loss, step, wikidata_id_name_map, wikidata_rel_id_name_map):
+    def print_pred_true_op_kvmem(prob_memory_entities, prob_memory_scores, gold_entity_ids, gold_orig_response, gold_orig_response_entities, batch_test_loss, step, wikidata_id_name_map, wikidata_rel_id_name_map):
 	test_result_dir = param['test_output_dir']
 	top20_entid_from_mem_file = os.path.join(test_result_dir, 'top20_ent_id_from_mem.txt')
 	top20_entid_from_kb_file = os.path.join(test_result_dir, 'top20_ent_id_from_kb.txt')
@@ -176,6 +180,7 @@ def run_testing(param):
 	gold_ent_file = os.path.join(test_result_dir, 'gold_ent.txt')
 	gold_ent_id_file = os.path.join(test_result_dir, 'gold_ent_id.txt')
         gold_resp_file = os.path.join(test_result_dir, 'gold_resp.txt')
+	gold_resp_ent_file = os.path.join(test_result_dir, 'gold_resp_ent_id.txt')
 	batch_loss_file = os.path.join(test_result_dir, 'kvmem_loss.txt')
 	if step==0:
                 mode='w'
@@ -188,6 +193,7 @@ def run_testing(param):
 	f5 = open(gold_ent_file, mode)
 	f8 = open(gold_ent_id_file, mode)
 	f6 = open(gold_resp_file, mode)
+	f9 = open(gold_resp_ent_file, mode)
 	f7 = open(batch_loss_file, mode)
 	for i in range(0, len(batch_loss_file)):
 	    print "top-5 memory entries from mem is:"
@@ -221,6 +227,7 @@ def run_testing(param):
             print gold_orig_response[i].strip()
             sys.stdout.flush()
             f7.write('%s\n' % str(batch_test_loss[i]))
+	    f9.write('%s\n' % str(gold_orig_response_entities[i]))	
 
         f1.close()
         f2.close()
@@ -229,6 +236,7 @@ def run_testing(param):
         f5.close()
         f6.close()
         f7.close()
+	f9.close()
 	f8.close()
     
     def map_id_to_word(word_indices, vocab):
@@ -279,7 +287,7 @@ def run_testing(param):
         else:
 	    vocab_init_embed[i,:] = np.random.rand(1,vocab_init_embed.shape[1]).astype(np.float32)
     id_entity_map = {0:'<pad_kb>', 1: '<nkb>'}
-    id_entity_map.update({(k+2):v for k,v in pkl.load(open(transe_dir+'/id_entity_map.pickle','rb')).iteritems()})
+    id_entity_map.update({(k+2):v for k,v in pkl.load(open(transe_dir+'/id_ent_map.pickle','rb')).iteritems()})
 
     id_rel_map = {0:'<pad_kb>', 1: '<nkb>'}
     id_rel_map.update({(k+2):v for k,v in pkl.load(open(transe_dir+'/id_rel_map.pickle','rb')).iteritems()})
@@ -307,7 +315,7 @@ def run_testing(param):
         n_batches = int(math.ceil(float(len(test_data))/float(param['batch_size'])))
         for i in range(n_batches):
             batch_dict = test_data[i*param['batch_size']:(i+1)*param['batch_size']]
-            sum_batch_loss = perform_test(model, batch_dict, response_vocab, ent_embed, rel_embed, id_entity_map, type_of_loss, i)
+            sum_batch_loss = perform_test(model, batch_dict, response_vocab, ent_embed, rel_embed, id_entity_map, type_of_loss, i, wikidata_id_name_map, wikidata_rel_id_name_map)
             test_loss = test_loss + sum_batch_loss
 
         print 'Avg. test loss = %f\n' % (float(test_loss)/float(len(test_data)))
@@ -317,7 +325,14 @@ def run_testing(param):
 
 
 def main():
-    param = get_params(sys.argv[1], sys.argv[2])
+    question_type = sys.argv[2]  
+    question_type_map = {'simple':'Simple Question (Direct)', 'verify':'Verification (Boolean) (All)', 'logical':'Logical Reasoning (All)', 'quantitative':'Quantitative Reasoning (All)', 'quantitative_count':'Quantitative Reasoning (Count) (All)', 'comparative':'Comparative Reasoning (All)', 'comparative_count':'Comparative Reasoning (Count) (All)'}
+    if question_type not in question_type_map:
+       question_type = "All"
+       question_type_name = "All"
+    else:
+       question_type_name = question_type_map[question_type]
+    param = get_params(sys.argv[1], question_type, question_type_name)
     print param
     if os.path.exists(param['test_data_file']):
         print 'dictionary already exists'

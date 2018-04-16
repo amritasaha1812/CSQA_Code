@@ -176,9 +176,18 @@ class QuestionParser(object):
     self.stop_vocab = stop_vocab
     self.stop_set = stop_set
     self.bad_qids = bad_qids	
-    self.item_wikidata = {k:self.clean_string(v) for k,v in item_wikidata.items()}
+    self.item_wikidata = {k:self.clean_string(v) for k,v in item_wikidata.items()}	
+    '''	
+    self.stop_set = set([x.lower() for x in self.stop_vocab.keys()])		
+    self.stop_set.update(stopwords)
+    with open('/dccstor/cssblr/vardaan/dialog-qa/dict_val/all_template_words.txt') as fr:
+	self.stop_set.update([x.strip().lower() for x in fr.readlines()])		
+    self.stop_set.update(pkl.load(open('/dccstor/cssblr/vardaan/dialog-qa/all_parent_names.pkl')))	
+    '''
     self.ls = ls
     self.all_possible_ngrams = all_possible_ngrams
+    #with codecs.open('/dccstor/cssblr/vardaan/dialog-qa/wikidata_fanout_dict.json','r','utf-8') as data_file:
+    #  self.wikidata_fanout_dict = json.load(data_file)
     print 'Successfully loaded wikidata_fanout_dict json'
 
   def remove_all_stopwords_except_one(self, qn_entities):
@@ -327,9 +336,7 @@ class QuestionParser(object):
 	#        print 'final entities found  ',set(e_words_found),
         if len(qn_entities)>0:
 	    #print ''	
-	    qn_entities = list(set(qn_entities))
-            qn_entities = self.substringSieve(qn_entities, self.item_wikidata)
-            return qn_entities
+            return list(set(qn_entities))
         if self.all_possible_ngrams:
                 values.update([x for x in toks if x not in self.stop_set and not isint(x)])
                 values.update([' '.join(list(x)) for x in nltk.bigrams(toks) if len(set(x)-self.stop_set)>0])
@@ -362,18 +369,39 @@ class QuestionParser(object):
                 if e_words in text_replaced or e_words in e_words_found:
                         text_replaced = text_replaced.replace(e_words, ' '+e.strip()+' ')
                         e_words_found.append(e_words)
-                        qn_entities.append(e)	
-	qn_entities = list(set(qn_entities))
+                        qn_entities.append(e)
 	qn_entities = [e for e in qn_entities if self.item_wikidata[e] in original_text]
 	qn_entities = self.substringSieve(qn_entities, self.item_wikidata)
-        return qn_entities
+        return list(set(qn_entities))
 
-  def get_utterance_entities(self, utterance, split_into_commas=False):
+  def get_utterance_entities(self, utterance, split_into_commas=False, use_gold_entities=False):
+    if use_gold_entities:
+	utterance_dict = utterance
+	utterance= utterance_dict['utterance']
+	gold_entities = []
+	if 'entities' in utterance_dict:
+		gold_entities.extend(utterance_dict['entities'])
+	if 'entities_in_utterance' in utterance_dict:
+		gold_entities.extend(utterance_dict['entities_in_utterance'])
+	if 'all_entities' in utterance_dict:
+		gold_entities.extend(utterance_dict['all_entities'])
+	utterance = utterance.lower()
+	if isinstance(utterance, unicode):
+		utterance = unicodedata.normalize('NFKD', utterance).encode('ascii','ignore')
+	else:	
+		utterance = unicodedata.normalize('NFKD', unicode(utterance, "utf-8")).encode('ascii','ignore')  	
+	utterance = ' '+utterance.strip()+' '
+	gold_entity_names = [self.item_wikidata[e].lower() for e in gold_entities]
+	for g_e, g_e_name in zip(gold_entities, gold_entity_names):
+		g_e_name = ' '+g_e_name.strip()+' '	
+		if g_e_name in utterance:	
+			utterance = utterance.replace(g_e_name.strip(), g_e)
+	return gold_entities, utterance		
     qn_entities = [] # QIDs global list
     utterance = unicodedata.normalize('NFKD', unicode(utterance, "utf-8")).encode('ascii','ignore')  
     utter_token_list = [] # contains tree-tokenized version of each of the utterances
     utter_dict_list = [] # for each utter, it contains a dict, each key is a NE and corr. value is the tokenization of that entityW
-
+    utterance = utterance.replace('|',' | ')
     utterance_chunks = utterance.split('|')
 
     out_utter_list = []
@@ -403,23 +431,29 @@ class QuestionParser(object):
       qn_entities = [e for e in qn_entities if self.item_wikidata[e] in utterance]
       qn_entities = self.substringSieve(qn_entities, self.item_wikidata)
       for e in qn_entities:
-           if e in search_dict:
-                word_e = ' '+' '.join(search_dict[e]).strip()+' '
-           else:
-                word_e = ' '+self.item_wikidata[e].strip()+' '
+	   if e in search_dict:
+	        word_e = ' '+' '.join(search_dict[e]).strip()+' '
+	   else:
+		word_e = ' '+self.item_wikidata[e].strip()+' '		
            if word_e in word_list or word_e in e_words_found:
                 word_list = word_list.replace(word_e, ' '+e.strip()+' ')
                 e_words_found.append(word_e)
-      out_utter_list.append(word_list.strip())
+      out_utter_list.append(word_list.strip())	
     return qn_entities, '|'.join(out_utter_list)
 
 if __name__=="__main__":
-        stop_set = pkl.load(open('stopwords.pkl'))
-        stop_vocab = read_file_as_dict('stopwords_histogram.txt')
+	stop_vocab = {}
+	with open('/dccstor/cssblr/vardaan/neural_kbqa_wikidata/data/movieqa/stopwords.txt') as input_file:
+	    reader = csv.DictReader(input_file, delimiter='\t', fieldnames=['col1', 'col2'])
+	    for row in reader:
+	      stop_vocab[row['col1']] = int(row['col2'])
+	stop_set = set([x.lower().strip() for x in stop_vocab.keys()])
+        stop_set.update([x.lower().strip() for x in stopwords])
+        stop_set.update(pkl.load(open('/dccstor/cssblr/vardaan/dialog-qa/all_parent_names.pkl')))
 	bad_qids = set(['Q184386','Q1541554','Q540955','Q2620241','Q742391'])  #adding Yes/No
         bad_qids.update(pkl.load(open('wikidata_entities_with_digitnames.pkl')))
 	context = "which is the council of the united nations security council ?"
-	ls = LuceneSearch('lucene_dir')
+	ls = LuceneSearch('/dccstor/cssblr/amrita/dialog_qa/code/prepro_lucene/lucene_index_new3')
         question_parser = QuestionParser(None, stop_vocab, stop_set, bad_qids, ls, True)
 	print 'In get_utterance_entities '
         ques_entities, context_list = question_parser.get_utterance_entities(context, True)

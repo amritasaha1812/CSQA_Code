@@ -71,6 +71,10 @@ class PrepareData():
         self.bad_qids = set(['Q184386','Q1541554','Q540955','Q2620241','Q742391'])  #adding Yes/No
         self.bad_qids.update(pkl.load(open('wikidata_entities_with_digitnames.pkl')))
         self.wikidata_qid_to_name = json.load(open(wikidata_dir+'/items_wikidata_n.json'))
+	self.use_gold_entities = True
+	self.use_gold_relations = True
+	self.use_gold_types = True
+	self.use_direct_only = True
 	#Taken from Su Nam Kim Paper...
         self.grammar = r"""
             NBAR:
@@ -88,7 +92,7 @@ class PrepareData():
         self.question_parser = QuestionParser(None, self.stop_vocab, self.stop_set, self.bad_qids, self.ls, self.wikidata_qid_to_name, self.all_possible_ngrams)
         self.wikidata, self.reverse_dict, self.prop_data, self.child_par_dict, self.child_all_par_dict, self.wikidata_fanout_dict = load_wikidata(wikidata_dir)
         self.id_entity_map = {self.pad_kb_symbol_index:self.pad_kb_symbol, self.nkb_symbol_index: self.nkb_symbol}
-        self.id_entity_map.update({(k+2):v for k,v in pkl.load(open(transe_dir+'/id_entity_map.pickle','rb')).iteritems()})
+        self.id_entity_map.update({(k+2):v for k,v in pkl.load(open(transe_dir+'/id_ent_map.pickle','rb')).iteritems()})
 	
         self.id_rel_map = {self.pad_kb_symbol_index:self.pad_kb_symbol, self.nkb_symbol_index: self.nkb_symbol}
         self.id_rel_map.update({(k+2):v for k,v in pkl.load(open(transe_dir+'/id_rel_map.pickle','rb')).iteritems()})
@@ -124,21 +128,22 @@ class PrepareData():
 
 
 
-    def prepare_data(self, input, vocab_file, vocab_stats_file, response_vocab_file, output, dialogue_pkl_file, ques_type_id = -1):
+    def prepare_data(self, input, vocab_file, vocab_stats_file, response_vocab_file, output, dialogue_pkl_file, ques_type_id = "All", ques_type_name = "All"):
 	if not os.path.isdir(input) or len(os.listdir(input))==0:
             raise Exception("Input file not file")
         self.vocab_file = vocab_file
         self.vocab_stats_file = vocab_stats_file
 	self.response_vocab_file = response_vocab_file
         self.output = output
-        self.dialogue_context_file = self.output+"_context_%d.txt" % int(ques_type_id)
-        self.dialogue_target_file = self.output+"_target_%d.txt" % ques_type_id
-	self.dialogue_response_file = self.output+"_response_%d.txt" % ques_type_id
-	self.dialogue_orig_response_file = self.output+"_orig_response_%d.txt" % ques_type_id
-        self.sources_file = self.output+"_sources_%d.txt" % ques_type_id
-        self.relation_file = self.output+"_relation_%d.txt" % ques_type_id
-        self.target_file = self.output+"_value_target_%d.txt" % ques_type_id
-        self.active_set_file = self.output+"_active_set_%d.txt" % ques_type_id
+        self.dialogue_context_file = self.output+"_context_%s.txt" % ques_type_id
+        self.dialogue_target_file = self.output+"_target_%s.txt" % ques_type_id
+	self.dialogue_response_file = self.output+"_response_%s.txt" % ques_type_id
+	self.dialogue_orig_response_file = self.output+"_orig_response_%s.txt" % ques_type_id
+	self.dialogue_orig_response_entities_file = self.output+"_orig_response_entities_%s.txt" % ques_type_id
+        self.sources_file = self.output+"_sources_%s.txt" % ques_type_id
+        self.relation_file = self.output+"_relation_%s.txt" % ques_type_id
+        self.target_file = self.output+"_value_target_%s.txt" % ques_type_id
+        self.active_set_file = self.output+"_active_set_%s.txt" % ques_type_id
         if os.path.isfile(vocab_file):
             print 'found pre-existing vocab file.. reusing it'
             create_vocab = False
@@ -153,9 +158,9 @@ class PrepareData():
         else:
             self.read_vocab()
         if create_vocab or not os.path.exists(dialogue_pkl_file):
-            self.binarize_corpus(self.dialogue_context_file, self.dialogue_target_file, self.dialogue_response_file, self.dialogue_orig_response_file, self.active_set_file, self.sources_file, self.relation_file, self.target_file, dialogue_pkl_file)
+            self.binarize_corpus(self.dialogue_context_file, self.dialogue_target_file, self.dialogue_response_file, self.dialogue_orig_response_file, self.dialogue_orig_response_entities_file, self.active_set_file, self.sources_file, self.relation_file, self.target_file, dialogue_pkl_file)
         
-    def read_jsondir(self, json_dir, create_vocab=False, ques_type_id = "None"):
+    def read_jsondir(self, json_dir, create_vocab=False, ques_type_id = "All", ques_type_name = "All"):
         if os.path.isfile(self.dialogue_context_file):
             os.remove(self.dialogue_context_file)
         if os.path.isfile(self.dialogue_target_file):
@@ -164,6 +169,8 @@ class PrepareData():
             os.remove(self.dialogue_response_file)
         if os.path.isfile(self.dialogue_orig_response_file):
             os.remove(self.dialogue_orig_response_file)
+	if os.path.isfile(self.dialogue_orig_response_entities_file):
+	    os.remove(self.dialogue_orig_response_entities_file)
         if os.path.isfile(self.sources_file):
             os.remove(self.sources_file)
         if os.path.isfile(self.relation_file):
@@ -181,7 +188,7 @@ class PrepareData():
 	    self.response_word_counter = None
         for root, dirnames, filenames in os.walk(json_dir):
             for filename in fnmatch.filter(filenames, '*.json'):
-                self.read_jsonfile(os.path.join(root, filename), create_vocab, ques_type_id)
+                self.read_jsonfile(os.path.join(root, filename), create_vocab, ques_type_id, ques_type_name)
        
 
     def isint(self, x):
@@ -250,7 +257,40 @@ class PrepareData():
             return False
         return True 
 
-    def read_jsonfile(self, json_file, create_vocab, ques_type_id = "None"):
+    def remove_indirect_utterances(self, data):
+        qas = []
+        for utter in data:
+                utterance = utter['utterance'].lower()
+                if 'question-type' in utter or 'description' in utter:
+                        #print utter.keys()
+                        if isinstance(utterance, unicode):
+                                utterance = unicodedata.normalize('NFKD', utterance).encode('ascii','ignore')
+                        else:
+                                utterance = unicodedata.normalize('NFKD', unicode(utterance, "utf-8")).encode('ascii','ignore')
+                        utter_yes_no_removed = str(utterance)
+                        utter_yes_no_removed = utterance.replace('yes','').replace('no','')
+                        utter_yes_no_removed = re.sub(' +',' ',utter_yes_no_removed)
+                        utter_yes_no_removed = utter_yes_no_removed.replace(',','').replace('.','').replace('?','')
+                        #utter_yes_no_removed = utter_yes_no_removed.translate(string.maketrans("","",string.punctuation)).strip()
+                        if 'no, i meant' in utterance or 'could you tell me the answer for that?' in utterance or (utter['speaker'].lower()=='user' and len(utter_yes_no_removed)<=1) or 'tell me' in utterance:
+                                #print 'skipped: ', utterance
+                                continue
+                        if ('question-type' in utter and ('coreferenced' in utter['question-type'].lower() or 'ellipsis' in utter['question-type'].lower() or 'indirect' in utter['question-type'].lower() or 'incomplete' in utter['question-type'].lower() or 'clarification' in utter['question-type'].lower())) or ('description' in utter and ('indirect' in utter['description'].lower() or 'incomplete' in utter['description'].lower() or 'clarification' in utter['description'].lower())):
+                                #print 'skipped: ',utterance
+                                ques = None
+                                continue
+                        ques = utter
+                else:
+                        if ques is not None:
+                                ans = utter
+                                qas.append(ques)
+                                qas.append(ans)
+                                ans = None
+                                ques = None
+
+        return qas
+
+    def read_jsonfile(self, json_file, create_vocab, ques_type_id, ques_type_name):
         #print 'json filename: %s' % json_file
         try:
             dialogue = json.load(codecs.open(json_file,'r','utf-8'))
@@ -260,8 +300,8 @@ class PrepareData():
             return None
         filter(None, dialogue)
 
-        
-
+        if self.use_direct_only:
+                dialogue = self.remove_indirect_utterances(dialogue)
         dialogue_vocab = {}
         dialogue_contexts = []
 	dialogue_context_utterances  = []
@@ -269,7 +309,7 @@ class PrepareData():
         dialogue_instance = []
 	dialogue_responses = []
 	dialogue_orig_responses = []
-
+	dialogue_orig_response_entities = []
         dialog_sources = []
         dialog_relations = []
         dialog_targets = []
@@ -295,6 +335,7 @@ class PrepareData():
 		nlg = unicodedata.normalize('NFKD', nlg).encode('ascii','ignore')
 	    else:
 		nlg = unicodedata.normalize('NFKD', unicode(nlg, "utf-8")).encode('ascii','ignore')
+
             # print nlg
             if nlg is not None:
                    nlg = nlg.strip().encode('utf-8')
@@ -302,54 +343,19 @@ class PrepareData():
                 nlg = ""
             # nlg = nlg.lower().replace("|","")
             nlg = nlg.replace("|","")
+	    dialogue_instance.append(utterance)
             try:
                 nlg_words = nltk.word_tokenize(nlg)
             except:
                 nlg_words = nlg.split(" ")
-            # if create_vocab:
-            #     self.word_counter.update(nlg_words[:self.max_len-2])
-            dialogue_instance.append(nlg)
-            #_, context_list = self.question_parser.get_utterance_entities(nlg)
-            # print 'flag'
-            
             if create_vocab:
 		_, context_list = self.question_parser.get_utterance_entities(nlg)
                 self.word_counter.update([x for x in nltk.word_tokenize(context_list) if not self.isQid(x)]) # update vocab for non-Qid words
             is_ques_relevant = False
-            if speaker=="SYSTEM" and (ques_type_id=="None" or ques_type_id == dialogue[utter_id-1]['question-type']):
+            if speaker=="SYSTEM" and (ques_type_name=="All" or ques_type_name == dialogue[utter_id-1]['question-type']):
 		is_ques_relevant = True
-	    '''	 
-            if ques_type_id == 16:
-                if speaker=="SYSTEM" and 'ques_type_id' in dialogue[utter_id-1] and ('count_ques_sub_type' in dialogue[utter_id-1] and ((dialogue[utter_id-1]['ques_type_id'] == 7 and dialogue[utter_id-1]['count_ques_sub_type'] in [2,3]) or (dialogue[utter_id-1]['ques_type_id'] == 8 and dialogue[utter_id-1]['count_ques_sub_type'] in [3,4])) and ('active_set' in utterance)):
-                    is_ques_relevant = True
-            elif ques_type_id == 17:
-                if speaker=="SYSTEM" and 'ques_type_id' in dialogue[utter_id-1] and ('count_ques_sub_type' in dialogue[utter_id-1] and ((dialogue[utter_id-1]['ques_type_id'] == 7 and dialogue[utter_id-1]['count_ques_sub_type'] in [1,5,7]) or (dialogue[utter_id-1]['ques_type_id'] == 8 and dialogue[utter_id-1]['count_ques_sub_type'] in [1,2,6,8])) and ('active_set' in utterance)):
-                    is_ques_relevant = True
-            elif ques_type_id == 18:
-                if speaker=="SYSTEM" and 'ques_type_id' in dialogue[utter_id-1] and ('count_ques_sub_type' in dialogue[utter_id-1] and ((dialogue[utter_id-1]['ques_type_id'] == 7 and dialogue[utter_id-1]['count_ques_sub_type'] in [4,8]) or (dialogue[utter_id-1]['ques_type_id'] == 8 and dialogue[utter_id-1]['count_ques_sub_type'] in [5,9])) and ('active_set' in utterance)):
-                    is_ques_relevant = True
-            elif ques_type_id == 19:
-                if speaker=="SYSTEM" and 'ques_type_id' in dialogue[utter_id-1] and ('count_ques_sub_type' in dialogue[utter_id-1] and ((dialogue[utter_id-1]['ques_type_id'] == 7 and dialogue[utter_id-1]['count_ques_sub_type'] in [6,9]) or (dialogue[utter_id-1]['ques_type_id'] == 8 and dialogue[utter_id-1]['count_ques_sub_type'] in [7,10])) and ('active_set' in utterance)):
-                    is_ques_relevant = True
-	    elif ques_type_id == 4:
-		if speaker=="SYSTEM" and (('ques_type_id' in dialogue[utter_id-1] and dialogue[utter_id-1]['ques_type_id'] == ques_type_id) or ('ques_type_id' not in dialogue[utter_id-1] and utter_id > 2 and 'ques_type_id' in dialogue[utter_id-3] and dialogue[utter_id-3]['ques_type_id'] == ques_type_id)):			is_ques_relevant = True
-	    elif ques_type_id == 3:
-		if speaker=="SYSTEM" and (('ques_type_id' in dialogue[utter_id] and dialogue[utter_id]['ques_type_id'] == ques_type_id) or (utter_id > 1 and 'ques_type_id' in dialogue[utter_id-2] and dialogue[utter_id-2]['ques_type_id']== ques_type_id)):
-		    is_ques_relevant = True
-	    elif ques_type_id == 9:
-		if speaker=="SYSTEM" and ('ques_type_id' in dialogue[utter_id-1] and dialogue[utter_id-1]['ques_type_id'] == 2 and 'sec_ques_sub_type' in dialogue[utter_id-1] and dialogue[utter_id-1]['sec_ques_sub_type'] in [2,3]) and ('active_set' in utterance):
-		    is_ques_relevant = True
-	    elif ques_type_id == 10:
-		if speaker=="SYSTEM" and 'ques_type_id' in dialogue[utter_id-1] and (dialogue[utter_id-1]['ques_type_id'] == 1 or (dialogue[utter_id-1]['ques_type_id'] == 2 and 'sec_ques_sub_type' in dialogue[utter_id-1] and dialogue[utter_id-1]['sec_ques_sub_type'] in [1,4])) and ('active_set' in utterance):
-		    is_ques_relevant = True						
-            elif ques_type_id in [ -1, 6, 5]:
-                if speaker=="SYSTEM" and (ques_type_id < 0 or ('ques_type_id' in dialogue[utter_id-1] and dialogue[utter_id-1]['ques_type_id'] == ques_type_id)) and ('active_set' in utterance or ques_type_id < 0):
-                    is_ques_relevant = True
-                # print 'flag 0'
-                # last_utterance = dialogue_instance[-1]
-	    '''
             if is_ques_relevant:
-		if ques_type_id == "None" and 'active_set' not in utterance:
+		if ques_type_name == "All" and 'active_set' not in utterance:
 			utterance['active_set'] = ''
                 if 'active_set' not in utterance:
 		    active_set = ''
@@ -364,19 +370,28 @@ class PrepareData():
                 padded_clipped_dialogue = self.pad_or_clip_dialogue(dialogue_instance)
                 if len(padded_clipped_dialogue)!=(self.max_utter+1):
                     raise Exception('some problem with dialogue instance, len != max_utter+1')
+		orig_response_entities = []
+		if 'entities_in_utterance' in utterance and len(utterance['entities_in_utterance'])>0:
+			orig_response_entities = set([])
+			orig_response_entities.update(utterance['entities_in_utterance'])
+			orig_response_entities.update(utterance['all_entities'])
+			orig_response_entities = list(orig_response_entities)
+		dialogue_orig_response_entities.append(get_str_of_seq(orig_response_entities))
                 dialogue_instance_context = padded_clipped_dialogue[:-1]
                 dialogue_instance_target = dialogue_instance[-1]
-		dialogue_orig_responses.append(dialogue_instance_target)
-               	#dialogue_responses.append(dialogue_instance_target) 
-                # print 'flag 1'
-                #target_entities = self.question_parser.get_NER(dialogue_instance_target) # target entities is a list of QIDs
-                # print 'flag 2'
-		if 'ans_list_full' in utterance:
-			target_entities = utterance['ans_list_full']
-		elif 'entities' in utterance:
-			target_entities = utterance['entities']
-		else:
-			target_entities = []
+		response_utterance = dialogue_instance_target['utterance']
+                if isinstance(response_utterance, unicode):
+                        response_utterance = unicodedata.normalize('NFKD', response_utterance).encode('ascii','ignore')
+                else:
+                        response_utterance = unicodedata.normalize('NFKD', unicode(response_utterance, "utf-8")).encode('ascii','ignore')
+		dialogue_orig_responses.append(response_utterance)
+		if self.use_gold_entities:
+                        if 'entities_in_utterance' in dialogue_instance_target and len(dialogue_instance_target['entities_in_utterance'])>0:
+                                target_entities = dialogue_instance_target['all_entities']
+                        else:
+                                target_entities = []
+                else:
+                        target_entities = self.question_parser.get_NER(dialogue_instance_target) # target entities is a list of QIDs
                 if len(target_entities) > 0:
                     dialogue_targets.append(get_str_of_seq(target_entities))
                 else:
@@ -386,6 +401,7 @@ class PrepareData():
 		    tuples = set([])
                     pids = set([])
                     for QID in [q1 for q1 in candidate_entities if q1 in self.child_par_dict and q1 in self.entity_id_map]:
+			print 'qid ', QID
                         QID_type_matched = False
                         if types_in_context is None or (QID in self.child_all_par_dict and len(set(self.child_all_par_dict[QID]).intersection(types_in_context))>0):
                                 QID_type_matched = True
@@ -408,7 +424,9 @@ class PrepareData():
                             for qid in detected_qids:
                                 tuples.add((QID, pid, qid))
                                 tuples.add((qid, pid, QID))    
+			print 'tuples added ', len(tuples)
                     for QID in [q1 for q1 in candidate_entities if q1 in self.reverse_dict and q1 in self.entity_id_map]:
+			print 'qid ', QID
                         QID_type_matched = False
                         if types_in_context is None or (QID in self.child_all_par_dict and len(set(self.child_all_par_dict[QID]).intersection(types_in_context))>0):
                                 QID_type_matched = True
@@ -431,6 +449,7 @@ class PrepareData():
                             for qid in detected_qids:#[q for q in self.wikidata[QID][pid] if q in self.entity_id_map]:
                                         tuples.add((QID, pid, qid))
                                         tuples.add((qid, pid, QID))
+			print 'tuples added ', len(tuples)
                     return tuples, pids
 
                 try:
@@ -439,16 +458,34 @@ class PrepareData():
 		    relations_in_context = set([])
                     types_in_context = set([])
                     for index,context in enumerate(dialogue_instance_context):
-			if index==0:
-				ques_entities, context_list = self.question_parser.get_utterance_entities(context, True)
+			if index%2==0 and self.max_utter%2==0:
+				split_into_commas = True
+                        else:
+                                split_into_commas = False
+                        if self.use_gold_entities:
+				ques_entities, context_list = self.question_parser.get_utterance_entities(context, split_into_commas, self.use_gold_entities)
 			else:
-	                        ques_entities, context_list = self.question_parser.get_utterance_entities(context)
+	                        ques_entities, context_list = self.question_parser.get_utterance_entities(context['utterance'], split_into_commas, self.use_gold_entities)
 			if create_vocab:
 				self.word_counter.update([x.lower() for x in nltk.word_tokenize(context_list) if not self.isQid(x)])
-			relation_in_context = self.find_relation(context, ques_entities)
+			if self.use_gold_relations:
+                                relation_in_context = set([])
+                                if 'relations' in context:
+                                        relation_in_context.update(context['relations'])
+                                if 'prop_res_1' in context:
+                                        relation_in_context.update(context['prop_res_1'])
+                                if 'prop_res' in context:
+                                        relation_in_context.update(context['prop_res'])
+                        else:
+                                relation_in_context = self.find_relation(context['utterance'], ques_entities)
                         relations_in_context.update(relation_in_context)
-			type_in_context = self.find_type(context)
-                        types_in_context.update(type_in_context)	
+			if self.use_gold_types:
+                                type_in_context = set([])
+                                if 'type_list' in context:
+                                        type_in_context.update(context['type_list'])
+                        else:
+                                type_in_context = self.find_type(context['utterance'])
+                        types_in_context.update(type_in_context)
                         tagged_context_list.append(context_list)
 			#if len(qn_entities)==0:
 	                qn_entities.extend(ques_entities)
@@ -458,8 +495,19 @@ class PrepareData():
                       candidate_entities = candidate_entities[:MAX_CANDIDATE_ENTITIES] #set(random.sample(qn_entities, MAX_CANDIDATE_ENTITIES))
 
                     dialogue_contexts.append(tagged_context_list)
-		    dialogue_context_utterances.append(dialogue_instance_context)
-		    response_entities, response_context_list = self.question_parser.get_utterance_entities(dialogue_instance_target)
+		    context_utter_list = []
+                    for context_utterance in dialogue_instance_context:
+                            context_utterance = context_utterance['utterance']
+                            if isinstance(context_utterance, unicode):
+                                context_utterance = unicodedata.normalize('NFKD', context_utterance).encode('ascii','ignore')
+                            else:
+                                context_utterance = unicodedata.normalize('NFKD', unicode(context_utterance, "utf-8")).encode('ascii','ignore')
+                            context_utter_list.append(context_utterance)
+                    dialogue_context_utterances.append(context_utter_list)
+                    if self.use_gold_entities:
+                            response_entities, response_context_list = self.question_parser.get_utterance_entities(dialogue_instance_target, True, self.use_gold_entities)
+                    else:
+                            response_entities, response_context_list = self.question_parser.get_utterance_entities(dialogue_instance_target['utterance'], True, True)
 		    words = [x.lower() for x in nltk.word_tokenize(response_context_list) if not self.isQid(x)]
 		    if create_vocab: 
 	                    self.word_counter.update(words)
@@ -471,6 +519,8 @@ class PrepareData():
                         types_in_context = None				
                     tuples, relations_explored = get_tuples_involving_entities(candidate_entities, relations_in_context, types_in_context) # tuples are stored as (Qid,pid,Qid)
 		    all_tuples = set(tuples)
+		    print 'candidates ', candidate_entities
+		    print 'number of candidate entities ' , len(candidate_entities), 'number of memory tuples ', len(tuples)
 		    '''
 		    for hop in range(1):	
 			    neighbour_entities = (extract_dimension_from_tuples_as_list(tuples, 2))
@@ -512,6 +562,9 @@ class PrepareData():
 	with open(self.dialogue_orig_response_file,'a') as fp:
 	    for dialogue_instance in dialogue_orig_responses:
 		fp.write(dialogue_instance+'\n')
+	with open(self.dialogue_orig_response_entities_file,'a') as fp:
+	    for dialogue_instance in dialogue_orig_response_entities:
+		fp.write(dialogue_instance+'\n')
         with open(self.sources_file,'a') as fp:
             for source in dialog_sources:
                 fp.write(source+'\n')
@@ -533,7 +586,7 @@ class PrepareData():
         elif len(dialogue_instance)<(self.max_utter+1):
             padded_dialogue_instance = []   
             pad_length = self.max_utter + 1 - len(dialogue_instance)
-            padded_dialogue_instance = ['']*pad_length
+            padded_dialogue_instance = [{'utterance':''}]*pad_length
             padded_dialogue_instance.extend(dialogue_instance)
             return padded_dialogue_instance
         else:
@@ -632,7 +685,7 @@ class PrepareData():
 	self.logger.info('Response Vocab size %d' % len(self.response_vocab_dict))
    
 
-    def binarize_corpus(self, dialogue_context_file, dialogue_target_file, dialogue_response_file, dialogue_orig_response_file, active_set_file, sources_file, relation_file, target_file, dialogue_pkl_file):
+    def binarize_corpus(self, dialogue_context_file, dialogue_target_file, dialogue_response_file, dialogue_orig_response_file, dialogue_orig_response_entities_file, active_set_file, sources_file, relation_file, target_file, dialogue_pkl_file):
         binarized_corpus = []
         binarized_corpus_context = []
         binarized_corpus_target = []
@@ -641,8 +694,8 @@ class PrepareData():
         freqs = collections.defaultdict(lambda: 0)
         df = collections.defaultdict(lambda: 0)
         num_instances = 0
-        with open(dialogue_context_file) as contextlines, open(dialogue_target_file) as targetlines, open(dialogue_response_file) as responselines, open(dialogue_orig_response_file) as orig_responselines, open(active_set_file) as active_set_lines, open(sources_file) as source_lines, open(relation_file) as relation_lines, open(target_file) as key_target_lines:
-            for context, target, response, orig_response, active_set, source, relation, key_target in izip(contextlines, targetlines, responselines, orig_responselines, active_set_lines, source_lines, relation_lines, key_target_lines):
+        with open(dialogue_context_file) as contextlines, open(dialogue_target_file) as targetlines, open(dialogue_response_file) as responselines, open(dialogue_orig_response_file) as orig_responselines, open(dialogue_orig_response_entities_file) as orig_response_entities_lines, open(active_set_file) as active_set_lines, open(sources_file) as source_lines, open(relation_file) as relation_lines, open(target_file) as key_target_lines:
+            for context, target, response, orig_response, orig_response_entities, active_set, source, relation, key_target in izip(contextlines, targetlines, responselines, orig_responselines, orig_response_entities_lines, active_set_lines, source_lines, relation_lines, key_target_lines):
                 context = context.lower().strip()
                 num_instances += 1
                 if num_instances % 1 == 0:
@@ -650,7 +703,7 @@ class PrepareData():
                 utterances = context.split('|')
                 binarized_context_1 = []
                 binarized_context_2 = []
-
+		orig_response_entities = orig_response_entities.strip()
                 for utterance in utterances:
                     try:
                         utterance_words = nltk.word_tokenize(utterance)
@@ -753,7 +806,8 @@ class PrepareData():
 		source_word_ids = "|".join([str(x) for x in source_word_ids])
                 relation_word_ids = "|".join([str(x) for x in relation_word_ids])
                 target_word_ids = "|".join([str(x) for x in target_word_ids])	
-                binarized_corpus.append([binarized_context_1, binarized_context_2, target, binarized_response, response_length, orig_response, source_word_ids, relation_word_ids, target_word_ids, active_set])
+		
+                binarized_corpus.append([binarized_context_1, binarized_context_2, target, binarized_response, response_length, orig_response, source_word_ids, relation_word_ids, target_word_ids, active_set, orig_response_entities])
         self.safe_pickle(binarized_corpus, dialogue_pkl_file)
         if not os.path.isfile(self.vocab_file):
             self.safe_pickle([(word, word_id, freqs[word_id], df[word_id]) for word, word_id in self.vocab_dict.items()], self.vocab_stats_file)

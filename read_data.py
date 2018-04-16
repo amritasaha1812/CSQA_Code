@@ -31,6 +31,7 @@ def get_dialog_dict(param):
     max_mem_size = param['memory_size']
     max_target_size = param['gold_target_size']
     ques_type_id = param['ques_type_id']
+    ques_type_name = param['ques_type_name']
     vocab_max_len = param['vocab_max_len']
     wikidata_dir = param['wikidata_dir']
     lucene_dir = param['lucene_dir'] 
@@ -40,8 +41,8 @@ def get_dialog_dict(param):
     if os.path.isfile(vocab_file):
         print 'found existing vocab file in '+str(vocab_file)+', ... reading from there'
     print 'to delete later ',os.path.join(dump_dir_loc, "train")	
-    preparedata.prepare_data(train_dir_loc, vocab_file, vocab_stats_file, os.path.join(dump_dir_loc, "train"), train_data_file, ques_type_id)
-    preparedata.prepare_data(valid_dir_loc, vocab_file, vocab_stats_file, os.path.join(dump_dir_loc, "valid"), valid_data_file, ques_type_id)
+    preparedata.prepare_data(train_dir_loc, vocab_file, vocab_stats_file, os.path.join(dump_dir_loc, "train"), train_data_file, ques_type_id, ques_type_name)
+    preparedata.prepare_data(valid_dir_loc, vocab_file, vocab_stats_file, os.path.join(dump_dir_loc, "valid"), valid_data_file, ques_type_id, ques_type_name)
     #preparedata.prepare_data(test_dir_loc, vocab_file, vocab_stats_file, os.path.join(dump_dir_loc, "test"), test_data_file, ques_type_id)
 
 
@@ -55,22 +56,22 @@ def get_dialog_dict_for_test(param):
     test_data_file = param['test_data_file']
     max_utter = param['max_utter']
     max_len = param['max_len']
-    input_graph = param['input_graph']
     stopwords = param['stopwords']
     stopwords_histogram = param['stopwords_histogram']
     max_mem_size = param['memory_size']
     max_target_size = param['gold_target_size']
     ques_type_id = param['ques_type_id']
+    ques_type_name = param['ques_type_name']
     vocab_max_len = param['vocab_max_len']
     wikidata_dir = param['wikidata_dir']
     lucene_dir = param['lucene_dir']
     transe_dir = param['transe_dir']
     glove_dir = param['glove_dir'] 
-    preparedata = PrepareData(max_utter, max_len, start_symbol_index, end_symbol_index, unk_symbol_index, pad_symbol_index, kb_pad_idx, nkb, input_graph, stopwords, stopwords_histogram, lucene_dir, transe_dir, wikidata_dir, glove_dir, max_mem_size, max_target_size, vocab_max_len, True, cutoff=vocab_freq_cutoff)
+    preparedata = PrepareData(max_utter, max_len, start_symbol_index, end_symbol_index, unk_symbol_index, pad_symbol_index, kb_pad_idx, nkb, stopwords, stopwords_histogram, lucene_dir, transe_dir, wikidata_dir, glove_dir, max_mem_size, max_target_size, vocab_max_len, True, cutoff=vocab_freq_cutoff)
     if os.path.isfile(vocab_file):
         print 'found existing vocab file in '+str(vocab_file)+', ... reading from there'
     print 'to delete later ',os.path.join(dump_dir_loc, "train")
-    preparedata.prepare_data(test_dir_loc, vocab_file, vocab_stats_file, response_vocab_file, os.path.join(dump_dir_loc, "test_"), test_data_file, ques_type_id)
+    preparedata.prepare_data(test_dir_loc, vocab_file, vocab_stats_file, response_vocab_file, os.path.join(dump_dir_loc, "test"), test_data_file, ques_type_id, ques_type_name)
 
 
 
@@ -121,6 +122,10 @@ def get_batch_data(max_len, max_utter, max_mem_size, max_target_size, batch_size
     batch_sources = [x.split("|") for x in data_dict[:,6]]
     batch_rel = [x.split("|") for x in data_dict[:,7]]
     batch_key_target = [x.split("|") for x in data_dict[:,8]]
+    if is_test:
+	batch_orig_response_entites = data_dict[:,10]
+    else:
+	batch_orig_response_entites = ''
     if overriding_memory is not None:
 	batch_sources = [x[:-1][:overriding_memory-1]+[x[-1]] for x in batch_sources]
 	batch_rel = [x[:-1][:overriding_memory-1]+[x[-1]] for x in batch_rel]
@@ -144,14 +149,15 @@ def get_batch_data(max_len, max_utter, max_mem_size, max_target_size, batch_size
     padded_memory_weights = get_memory_weights(batch_size, max_mem_size, padded_batch_sources, padded_batch_rel, padded_batch_key_target)
     
     padded_enc_w2v, padded_enc_kb, padded_target, padded_orig_target, padded_response, padded_weights, padded_decoder_input, padded_batch_sources, padded_batch_rel, padded_batch_key_target = transpose_utterances(padded_enc_w2v, padded_enc_kb, padded_target, padded_response, padded_weights, padded_decoder_input, padded_batch_sources, padded_batch_rel, padded_batch_key_target, max_mem_size, batch_size, is_test)
-    
-    return max_mem_size, padded_enc_w2v, padded_enc_kb, padded_target, padded_orig_target, padded_response, batch_orig_response, padded_weights, padded_memory_weights, padded_decoder_input, padded_batch_sources, padded_batch_rel, padded_batch_key_target, batch_active_set
+       
+    return max_mem_size, padded_enc_w2v, padded_enc_kb, padded_target, padded_orig_target, padded_response, batch_orig_response, padded_weights, padded_memory_weights, padded_decoder_input, padded_batch_sources, padded_batch_rel, padded_batch_key_target, batch_active_set, batch_orig_response_entites
 
 def transpose_utterances(padded_enc_w2v, padded_enc_kb, padded_target, padded_response, padded_weights, padded_decoder_input, batch_sources, batch_rel, batch_key_target, max_mem_size, batch_size, is_test):
 
     batch_key_target = np.asarray(batch_key_target) # batch_size * max_mem_size
     # padded_target : batch_size * max_target_size
     if not is_test:
+	    #print 'padded_target shape ', padded_target.shape
 	    mapped_padded_target = np.zeros(padded_target.shape)
 	    for i in xrange(mapped_padded_target.shape[0]):
         	for j in xrange(mapped_padded_target.shape[1]):

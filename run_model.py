@@ -61,7 +61,7 @@ def check_dir(param):
         os.makedirs(param['model_path'])
 
 def get_test_op(sess, model, batch_dict, step, ent_embedding):
-    memory_size, test_batch_enc_w2v, test_batch_enc_kb, batch_target, batch_orig_target, batch_response, batch_orig_response, batch_text_weight, batch_mem_weight, batch_decoder_input, batch_sources, batch_rel, batch_key_target, batch_active_set = get_batch_data(param['max_len'], param['max_utter'], param['memory_size'], param['gold_target_size'], param['batch_size'], batch_dict)
+    memory_size, test_batch_enc_w2v, test_batch_enc_kb, batch_target, batch_orig_target, batch_response, batch_orig_response, batch_text_weight, batch_mem_weight, batch_decoder_input, batch_sources, batch_rel, batch_key_target, batch_active_set, _ = get_batch_data(param['max_len'], param['max_utter'], param['memory_size'], param['gold_target_size'], param['batch_size'], batch_dict)
     feed_dict = feeding_dict(model, memory_size, test_batch_enc_w2v, test_batch_enc_kb, batch_orig_target, batch_target, batch_response, batch_text_weight, batch_mem_weight, batch_decoder_input, batch_sources, batch_rel, batch_key_target, True, ent_embedding, rel_embedding)
     dec_op, loss, loss_decoder, loss_kvmem= sess.run([logits, losses, losses_decoder, losses_kvmem], feed_dict=feed_dict)
     return loss, loss_decoder, loss_kvmem, dec_op
@@ -104,7 +104,7 @@ def run_training(param):
 		overriding_memory = 10
 	else:
 		overriding_memory = None
-        memory_size, train_batch_enc_w2v, train_batch_enc_kb, batch_target, batch_orig_target, batch_response, batch_orig_response, batch_text_weight, batch_mem_weight, batch_decoder_input, batch_sources, batch_rel, batch_key_target, batch_active_set = get_batch_data(param['max_len'], param['max_utter'], param['memory_size'], param['gold_target_size'], param['batch_size'], batch_dict, overriding_memory)
+        memory_size, train_batch_enc_w2v, train_batch_enc_kb, batch_target, batch_orig_target, batch_response, batch_orig_response, batch_text_weight, batch_mem_weight, batch_decoder_input, batch_sources, batch_rel, batch_key_target, batch_active_set, _ = get_batch_data(param['max_len'], param['max_utter'], param['memory_size'], param['gold_target_size'], param['batch_size'], batch_dict, overriding_memory)
         feed_dict = feeding_dict(model, memory_size, train_batch_enc_w2v, train_batch_enc_kb, batch_orig_target,  batch_target, batch_response, batch_text_weight, batch_mem_weight, batch_decoder_input, batch_sources, batch_rel, batch_key_target, feed_prev, ent_embedding, rel_embedding)
 	if type_of_loss == "decoder":
 	        output_loss, output_prob, _ = sess.run([losses, prob, train_op], feed_dict=feed_dict)
@@ -117,7 +117,7 @@ def run_training(param):
 		overriding_memory = 10
 	else:
 		overriding_memory = None
-        memory_size, val_batch_enc_w2v, val_batch_enc_kb, batch_target, batch_orig_target, batch_response, batch_orig_response, batch_text_weight, batch_mem_weight, batch_decoder_input, batch_sources, batch_rel, batch_key_target, batch_active_set = get_batch_data(param['max_len'], param['max_utter'], param['memory_size'], param['gold_target_size'], param['batch_size'], batch_dict, overriding_memory)
+        memory_size, val_batch_enc_w2v, val_batch_enc_kb, batch_target, batch_orig_target, batch_response, batch_orig_response, batch_text_weight, batch_mem_weight, batch_decoder_input, batch_sources, batch_rel, batch_key_target, batch_active_set, _ = get_batch_data(param['max_len'], param['max_utter'], param['memory_size'], param['gold_target_size'], param['batch_size'], batch_dict, overriding_memory)
         feed_dict = feeding_dict(model, memory_size, val_batch_enc_w2v, val_batch_enc_kb, batch_orig_target, batch_target, batch_response, batch_text_weight, batch_mem_weight, batch_decoder_input, batch_sources, batch_rel, batch_key_target, True, ent_embedding, rel_embedding)
 	if type_of_loss == "decoder":
 		output_loss, output_prob = sess.run([losses, prob], feed_dict)
