@@ -311,7 +311,7 @@ def run_training(param):
             #vocab_init_embed[i,:] = np.random.rand(1,vocab_init_embed.shape[1])
    
     id_entity_map = {0:'<pad_kb>', 1: '<nkb>'}
-    id_entity_map.update({(k+2):v for k,v in pkl.load(open(wikidata_dir+'/id_entity_map.pickle','rb')).iteritems()}) 
+    id_entity_map.update({(k+2):v for k,v in pkl.load(open(transe_dir+'/id_ent_map.pickle','rb')).iteritems()}) 
     type_of_loss = ""
     if 'type_of_loss' in param:
 	type_of_loss=param['type_of_loss']
