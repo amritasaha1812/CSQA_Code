@@ -440,7 +440,7 @@ class QuestionParser(object):
                 e_words_found.append(word_e)
       out_utter_list.append(word_list.strip())	
     return qn_entities, '|'.join(out_utter_list)
-
+'''
 if __name__=="__main__":
 	stop_vocab = {}
 	with open('/dccstor/cssblr/vardaan/neural_kbqa_wikidata/data/movieqa/stopwords.txt') as input_file:
@@ -461,4 +461,4 @@ if __name__=="__main__":
 	print 'context_list ', context_list
 	print 'In get_NER'
 	question_parser.get_NER(context)	
-		
+'''		
