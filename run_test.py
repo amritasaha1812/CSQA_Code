@@ -13,7 +13,7 @@ import numpy as np
 from params_test import *
 import nltk
 from read_data import *
-#from hierarchy_model import Hierarchical_seq_model
+from hierarchy_model import Hierarchical_seq_model
 import gensim
 import unidecode
 from collections import OrderedDict
@@ -86,16 +86,13 @@ def run_testing(param):
 		return output_loss, output_prob, np.transpose(batch_response, (1,0)), batch_orig_response
 	elif type_of_loss == "kvmem":
 		output_loss, output_prob = sess.run([losses, prob], feed_dict=feed_dict)
-		print 'output-prob ' ,output_prob
 		prob_mem_entries = output_prob
                 prob_mem_entries = np.array(prob_mem_entries)
                 mem_entries_sorted = np.fliplr(np.argsort(prob_mem_entries,axis=1))
                 mem_attention_sorted = np.fliplr(np.sort(prob_mem_entries,axis=1))
                 mem_entries_sorted = [[batch_key_target[j][i] for j in mem_entries_sorted[i]] for i in range(batch_key_target.shape[1])]
                 mem_entries_sorted = np.array(mem_entries_sorted, dtype=np.int32)
-		print 'mem_entries_sorted before ', mem_entries_sorted
                 mem_entries_sorted = [[id_entity_map[mem_entries_sorted[i][j]] for j in range(mem_entries_sorted.shape[1])] for i in range(mem_entries_sorted.shape[0])]
-		print 'mem_entries_sorted after ',mem_entries_sorted
                 gold_entity_ids = batch_orig_target
                 return output_loss, mem_entries_sorted, mem_attention_sorted, gold_entity_ids, batch_orig_response, batch_orig_response_entities
 
@@ -107,7 +104,6 @@ def run_testing(param):
 		print_pred_true_op_decoder(batch_predicted_sentence, gold_orig_response, batch_test_loss, step)
 	elif type_of_loss == "kvmem":
 		batch_test_loss, prob_mem_entries, prob_mem_scores, gold_entity_ids, gold_orig_response, gold_orig_response_entities = get_test_op(model, batch_dict, ent_embedding, rel_embedding, id_entity_map, type_of_loss)
-		gold_orig_response_entities = '|'.join(gold_orig_response_entities)
 		print_pred_true_op_kvmem(prob_mem_entries, prob_mem_scores, gold_entity_ids, gold_orig_response, gold_orig_response_entities, batch_test_loss, step, wikidata_id_name_map, wikidata_rel_id_name_map)
         sum_batch_loss = get_sum_batch_loss(batch_test_loss)
         sys.stdout.flush()
@@ -186,6 +182,14 @@ def run_testing(param):
                 mode='w'
         else:
                 mode='a'
+	'''
+	print 'len(prob_memory_entities) ' ,len(prob_memory_entities)
+	print 'len(gold_entity_ids) ', len(gold_entity_ids)
+	print 'len(gold_orig_response) ', len(gold_orig_response)
+	print 'len(gold_orig_response_entities) ', len(gold_orig_response_entities), gold_orig_response_entities
+	print 'len(batch_test_loss) ', len(batch_test_loss)
+	'''
+	print 'len(gold_orig_response_entities) ', len(gold_orig_response_entities), gold_orig_response_entities
 	f1 = open(top20_entid_from_mem_file, mode)
 	f2 = open(top20_entid_from_kb_file, mode)
 	f3 = open(top20_ent_from_mem_file, mode)
@@ -195,7 +199,7 @@ def run_testing(param):
 	f6 = open(gold_resp_file, mode)
 	f9 = open(gold_resp_ent_file, mode)
 	f7 = open(batch_loss_file, mode)
-	for i in range(0, len(batch_loss_file)):
+	for i in range(0, len(gold_orig_response)):
 	    print "top-5 memory entries from mem is:"
             memory_entities = [mem_entry for mem_entry in prob_memory_entities[i] if mem_entry not in ['<pad_kb>','<nkb>','<unk>']]
             f1.write('%s\n' % '|'.join([mem_entry for mem_entry in memory_entities][:20]))
@@ -332,6 +336,7 @@ def main():
        question_type_name = "All"
     else:
        question_type_name = question_type_map[question_type]
+    print 'question_type ',question_type, 'question_type_name ',question_type_name
     param = get_params(sys.argv[1], question_type, question_type_name)
     print param
     if os.path.exists(param['test_data_file']):

@@ -32,7 +32,7 @@ from words2number import *
 import json
 MAX_RELEVANT_ENTITIES = 4
 HOPS_FROM_QN_ENTITY = 1
-MAX_CANDIDATE_ENTITIES = 10000
+MAX_CANDIDATE_ENTITIES = 10
 MAX_CANDIDATE_TUPLES = 100000
 class PrepareData():
     def __init__(self, max_utter, max_len, start_symbol_index, end_symbol_index, unk_symbol_index, pad_symbol_index, pad_kb_symbol_index, nkb_symbol_index, stopwords, stopwords_histogram, lucene_dir, transe_dir, wikidata_dir, glove_dir, max_mem_size, max_target_size, vocab_max_len, all_possible_ngrams, cutoff=-1):
@@ -90,7 +90,7 @@ class PrepareData():
         self.stop_vocab = read_file_as_dict(stopwords_histogram)
         self.ls = LuceneSearch(lucene_dir)
         self.question_parser = QuestionParser(None, self.stop_vocab, self.stop_set, self.bad_qids, self.ls, self.wikidata_qid_to_name, self.all_possible_ngrams)
-        self.wikidata, self.reverse_dict, self.prop_data, self.child_par_dict, self.child_all_par_dict, self.wikidata_fanout_dict = load_wikidata(wikidata_dir)
+        self.wikidata, self.reverse_dict, self.prop_data, self.child_par_dict, self.child_all_par_dict, self.wikidata_fanout_dict, self.par_child_dict = load_wikidata(wikidata_dir)
         self.id_entity_map = {self.pad_kb_symbol_index:self.pad_kb_symbol, self.nkb_symbol_index: self.nkb_symbol}
         self.id_entity_map.update({(k+2):v for k,v in pkl.load(open(transe_dir+'/id_ent_map.pickle','rb')).iteritems()})
 	
@@ -149,7 +149,7 @@ class PrepareData():
             create_vocab = False
         else:
             create_vocab = True
-        self.read_jsondir(input, create_vocab, ques_type_id)
+        self.read_jsondir(input, create_vocab, ques_type_id, ques_type_name)
 
         #print 'json dir read complete'
 
@@ -378,6 +378,7 @@ class PrepareData():
 			orig_response_entities = list(orig_response_entities)
 		dialogue_orig_response_entities.append(get_str_of_seq(orig_response_entities))
                 dialogue_instance_context = padded_clipped_dialogue[:-1]
+		#print 'dialogue_instance_context ', dialogue_instance_context		
                 dialogue_instance_target = dialogue_instance[-1]
 		response_utterance = dialogue_instance_target['utterance']
                 if isinstance(response_utterance, unicode):
@@ -401,7 +402,6 @@ class PrepareData():
 		    tuples = set([])
                     pids = set([])
                     for QID in [q1 for q1 in candidate_entities if q1 in self.child_par_dict and q1 in self.entity_id_map]:
-			print 'qid ', QID
                         QID_type_matched = False
                         if types_in_context is None or (QID in self.child_all_par_dict and len(set(self.child_all_par_dict[QID]).intersection(types_in_context))>0):
                                 QID_type_matched = True
@@ -424,9 +424,7 @@ class PrepareData():
                             for qid in detected_qids:
                                 tuples.add((QID, pid, qid))
                                 tuples.add((qid, pid, QID))    
-			print 'tuples added ', len(tuples)
                     for QID in [q1 for q1 in candidate_entities if q1 in self.reverse_dict and q1 in self.entity_id_map]:
-			print 'qid ', QID
                         QID_type_matched = False
                         if types_in_context is None or (QID in self.child_all_par_dict and len(set(self.child_all_par_dict[QID]).intersection(types_in_context))>0):
                                 QID_type_matched = True
@@ -449,7 +447,6 @@ class PrepareData():
                             for qid in detected_qids:#[q for q in self.wikidata[QID][pid] if q in self.entity_id_map]:
                                         tuples.add((QID, pid, qid))
                                         tuples.add((qid, pid, QID))
-			print 'tuples added ', len(tuples)
                     return tuples, pids
 
                 try:
@@ -490,8 +487,14 @@ class PrepareData():
 			#if len(qn_entities)==0:
 	                qn_entities.extend(ques_entities)
                     candidate_entities = qn_entities
-
-                    if len(qn_entities) > MAX_CANDIDATE_ENTITIES:
+		    if len(candidate_entities)==0:
+			candidate_entities = set(candidate_entities)
+			for t in types_in_context:
+				if t in self.par_child_dict:
+					children = self.par_child_dict[t][:int(MAX_CANDIDATE_ENTITIES/len(types_in_context))]
+					candidate_entities.update(children)
+			candidate_entities = list(candidate_entities) 				
+                    if len(candidate_entities) > MAX_CANDIDATE_ENTITIES:
                       candidate_entities = candidate_entities[:MAX_CANDIDATE_ENTITIES] #set(random.sample(qn_entities, MAX_CANDIDATE_ENTITIES))
 
                     dialogue_contexts.append(tagged_context_list)
@@ -519,8 +522,9 @@ class PrepareData():
                         types_in_context = None				
                     tuples, relations_explored = get_tuples_involving_entities(candidate_entities, relations_in_context, types_in_context) # tuples are stored as (Qid,pid,Qid)
 		    all_tuples = set(tuples)
-		    print 'candidates ', candidate_entities
-		    print 'number of candidate entities ' , len(candidate_entities), 'number of memory tuples ', len(tuples)
+		    if len(all_tuples)==0:
+			print 'found no tuple for ', candidate_entities, types_in_context
+			tuples, relations_explored = get_tuples_involving_entities(candidate_entities)
 		    '''
 		    for hop in range(1):	
 			    neighbour_entities = (extract_dimension_from_tuples_as_list(tuples, 2))

@@ -267,6 +267,7 @@ def run_training(param):
     for file in valid_files:
 	print file
 	valid_data.extend(pkl.load(open(file)))
+    original_valid_data_len = len(valid_data)
     print 'Valid dialogue dataset loaded'
     sys.stdout.flush()
     vocab = pkl.load(open(param['vocab_file'],"rb"))
@@ -283,6 +284,15 @@ def run_training(param):
     lucene_dir = param['lucene_dir']
     transe_dir = param['transe_dir']
     glove_dir = param['glove_dir']
+    if param['type_of_loss']=='decoder':
+	allowed_states = ['Verification (Boolean) (All)', 'Quantitative Reasoning (Count) (All)', 'Comparative Reasoning (Count) (All)']
+    else:
+        allowed_states = None
+    '''
+    if allowed_states is not None:
+        valid_data = [x for x in valid_data if len(x)<11 or x[10].strip() in allowed_states]
+        print 'removed ', (len(valid_data)-original_valid_data_len) ', instances from train'
+    '''
     model_file = os.path.join(param['model_path'],"best_model")
     wikidata_id_name_map=json.load(open(wikidata_dir+'/items_wikidata_n.json'))
     vocab_init_embed = np.empty([len(vocab.keys()), param['text_embedding_size']],dtype=np.float32)
@@ -348,7 +358,12 @@ def run_training(param):
           train_loss=0.
 	  for file in training_files:
 	    train_data = pkl.load(open(file))
-	    len_train_data = len_train_data + len(train_data)
+	    original_train_data_len = len(train_data)
+	    '''if allowed_states is not None:
+		train_data = [x for x in train_data if len(x)<11 or x[10].strip() in allowed_states]
+		print 'removed ', (len(train_data)-original_train_data_len) ' instances from train'
+	    '''
+            len_train_data = len_train_data + len(train_data)
 	    random.shuffle(train_data)
 	    train_data.sort(key=lambda x : len(x[6].split("|"))) #filter(lambda a: a!= kb_pad_idx, x[6].split("|"))))
 	    print 'sorted training data by memory size'	

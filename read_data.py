@@ -3,7 +3,7 @@ import numpy as np
 import cPickle as pkl
 import os
 #from params import *
-from prepare_data_for_hred import PrepareData as PrepareData
+from prepare_data_for_hred_from_prepro import PrepareData as PrepareData
 start_symbol_index = 0
 end_symbol_index = 1
 unk_symbol_index = 2
@@ -123,17 +123,24 @@ def get_batch_data(max_len, max_utter, max_mem_size, max_target_size, batch_size
     batch_rel = [x.split("|") for x in data_dict[:,7]]
     batch_key_target = [x.split("|") for x in data_dict[:,8]]
     if is_test:
-	batch_orig_response_entites = data_dict[:,10]
+	batch_orig_response_entities = data_dict[:,10]
     else:
-	batch_orig_response_entites = ''
+	batch_orig_response_entities = ['']*data_dict.shape[0]
+    if isinstance(batch_orig_response_entities, np.ndarray):
+	batch_orig_response_entities = batch_orig_response_entities.tolist()	
+    if len(batch_orig_response_entities)!=batch_size:
+	batch_orig_response_entities.extend(['']*(batch_size-len(batch_orig_response_entities)))
     if overriding_memory is not None:
 	batch_sources = [x[:-1][:overriding_memory-1]+[x[-1]] for x in batch_sources]
 	batch_rel = [x[:-1][:overriding_memory-1]+[x[-1]] for x in batch_rel]
 	batch_key_target = [x[:-1][:overriding_memory-1]+[x[-1]] for x in batch_key_target]
+    '''
     try:
 	    batch_active_set = data_dict[:,9]
     except:
 	    batch_active_set = ['']*len(data_dict)
+    '''
+    batch_active_set = ['']*len(data_dict)
     batch_response_len = [len(response) for response in batch_response]
     orig_lens = [len(batch_sources_i) for batch_sources_i in batch_sources]
     max_mem_size = max(orig_lens)
@@ -150,7 +157,7 @@ def get_batch_data(max_len, max_utter, max_mem_size, max_target_size, batch_size
     
     padded_enc_w2v, padded_enc_kb, padded_target, padded_orig_target, padded_response, padded_weights, padded_decoder_input, padded_batch_sources, padded_batch_rel, padded_batch_key_target = transpose_utterances(padded_enc_w2v, padded_enc_kb, padded_target, padded_response, padded_weights, padded_decoder_input, padded_batch_sources, padded_batch_rel, padded_batch_key_target, max_mem_size, batch_size, is_test)
        
-    return max_mem_size, padded_enc_w2v, padded_enc_kb, padded_target, padded_orig_target, padded_response, batch_orig_response, padded_weights, padded_memory_weights, padded_decoder_input, padded_batch_sources, padded_batch_rel, padded_batch_key_target, batch_active_set, batch_orig_response_entites
+    return max_mem_size, padded_enc_w2v, padded_enc_kb, padded_target, padded_orig_target, padded_response, batch_orig_response, padded_weights, padded_memory_weights, padded_decoder_input, padded_batch_sources, padded_batch_rel, padded_batch_key_target, batch_active_set, batch_orig_response_entities
 
 def transpose_utterances(padded_enc_w2v, padded_enc_kb, padded_target, padded_response, padded_weights, padded_decoder_input, batch_sources, batch_rel, batch_key_target, max_mem_size, batch_size, is_test):
 

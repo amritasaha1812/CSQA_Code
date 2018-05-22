@@ -4,8 +4,7 @@ import nltk
 from nltk.corpus import stopwords
 import json
 import string
-'''
-import sys, os, lucene
+import lucene
 from lucene import *
 from java.io import File
 from org.apache.lucene.analysis.standard import StandardAnalyzer
@@ -16,7 +15,6 @@ from org.apache.lucene.queryparser.classic import QueryParser
 from org.apache.lucene.store import SimpleFSDirectory
 from org.apache.lucene.search import IndexSearcher
 from org.apache.lucene.util import Version
-'''
 import unicodedata
 import unidecode
 stop = set(stopwords.words('english'))

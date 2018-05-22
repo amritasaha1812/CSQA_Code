@@ -83,6 +83,6 @@ def load_wikidata(wikidata_dir):
          if q in reverse_dict:
              reverse_dict.pop(q,None)
 
-    return wikidata, reverse_dict, prop_data, child_par_dict, child_all_parents_dict, wikidata_fanout_dict
+    return wikidata, reverse_dict, prop_data, child_par_dict, child_all_parents_dict, wikidata_fanout_dict, par_child_dict
     
 
