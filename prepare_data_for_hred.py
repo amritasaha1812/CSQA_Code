@@ -71,10 +71,10 @@ class PrepareData():
         self.bad_qids = set(['Q184386','Q1541554','Q540955','Q2620241','Q742391'])  #adding Yes/No
         self.bad_qids.update(pkl.load(open('wikidata_entities_with_digitnames.pkl')))
         self.wikidata_qid_to_name = json.load(open(wikidata_dir+'/items_wikidata_n.json'))
-	self.use_gold_entities = True
-	self.use_gold_relations = True
-	self.use_gold_types = True
-	self.use_direct_only = True
+	self.use_gold_entities = False
+	self.use_gold_relations = False
+	self.use_gold_types = False
+	self.use_direct_only = False
 	#Taken from Su Nam Kim Paper...
         self.grammar = r"""
             NBAR:

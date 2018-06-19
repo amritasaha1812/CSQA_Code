@@ -3,7 +3,7 @@ import numpy as np
 import cPickle as pkl
 import os
 #from params import *
-from prepare_data_for_hred_from_prepro import PrepareData as PrepareData
+from prepare_data_for_hred import PrepareData as PrepareData
 start_symbol_index = 0
 end_symbol_index = 1
 unk_symbol_index = 2
