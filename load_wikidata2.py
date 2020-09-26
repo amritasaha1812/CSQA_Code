@@ -28,9 +28,9 @@ def load_wikidata(wikidata_dir):
         child_par_dict = json.load(data_file)
     print 'Successfully loaded child_par_dict json'
 
-    with codecs.open(wikidata_dir+'/child_all_parents_till_5_levels.json','r','utf-8') as data_file:
-	child_all_parents_dict = json.load(data_file)
-    print 'Successfully loaded child_all_parents_dict json'
+#     with codecs.open(wikidata_dir+'/child_all_parents_till_5_levels.json','r','utf-8') as data_file:
+# 	child_all_parents_dict = json.load(data_file)
+#     print 'Successfully loaded child_all_parents_dict json'
 
     with codecs.open(wikidata_dir+'/filtered_property_wikidata4.json','r','utf-8') as data_file:
         prop_data = json.load(data_file)
