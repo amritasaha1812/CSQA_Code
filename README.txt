@@ -4,7 +4,7 @@ Step2: Download all files from the dir. https://osu.box.com/s/8j9hy0cbi609c8kxv8
 
 Step3: Download https://drive.google.com/file/d/0B7XkCwpI5KDYNlNUTTlSS21pQmM/edit?usp=sharing and put it in a folder glove_dir
 
-Step4: Download the wikidata JSONs from the link https://zenodo.org/record/3364465#.X2lzFnRKhQJ and put them in a folder wikidata_dir
+Step4: Download the wikidata JSONs from the link https://zenodo.org/record/4052374#.X2_KuXRKhQI and put them in a folder wikidata_dir
 
 Step5: Put the correct (complete) paths to wikidata_dir, lucene_dir, transe_dir, glove_dir in params.py and params_test.py
 
